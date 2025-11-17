@@ -6,6 +6,8 @@ import { MainLayout } from './MainLayout';
 describe('MainLayout', () => {
   const mockHeaderProps = {
     fuel: 1000,
+    tankCapacity: 5000,
+    credits: 100,
     productionPerSecond: 10,
     nebulaCrystals: 5,
     clickPower: 1,

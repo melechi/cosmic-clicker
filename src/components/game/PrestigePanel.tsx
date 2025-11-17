@@ -6,7 +6,7 @@ import { PrestigeButton } from './PrestigeButton';
 import { formatNumber } from '@/utils/formatting/numberFormat';
 
 export interface PrestigePanelProps {
-  totalStardustEarned: number;
+  totalFuelEarned: number;
   currentNebulaCrystals: number;
   crystalsToGain: number;
   canPrestige: boolean;
@@ -18,7 +18,7 @@ export interface PrestigePanelProps {
  * Panel explaining prestige system with confirmation modal
  */
 export const PrestigePanel: React.FC<PrestigePanelProps> = ({
-  totalStardustEarned,
+  totalFuelEarned,
   currentNebulaCrystals,
   crystalsToGain,
   canPrestige,
@@ -42,8 +42,8 @@ export const PrestigePanel: React.FC<PrestigePanelProps> = ({
     setShowConfirmation(false);
   };
 
-  const minStardustRequired = 1000000;
-  const progressToPrestige = Math.min((totalStardustEarned / minStardustRequired) * 100, 100);
+  const minFuelRequired = 1000000;
+  const progressToPrestige = Math.min((totalFuelEarned / minFuelRequired) * 100, 100);
 
   return (
     <div className="space-y-4">
@@ -69,9 +69,9 @@ export const PrestigePanel: React.FC<PrestigePanelProps> = ({
             <span className="text-green-400 font-semibold">+{productionBonus}%</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-gray-400">Total Stardust Earned</span>
+            <span className="text-gray-400">Total Fuel Earned</span>
             <span className="text-blue-400 font-semibold">
-              {formatNumber(totalStardustEarned)}
+              {formatNumber(totalFuelEarned)}
             </span>
           </div>
         </div>
@@ -83,14 +83,14 @@ export const PrestigePanel: React.FC<PrestigePanelProps> = ({
           <li className="flex items-start gap-2">
             <span className="text-purple-400 mt-0.5">•</span>
             <span>
-              Prestige resets all your buildings, upgrades, and stardust (except Nebula Crystals)
+              Prestige resets all your buildings, upgrades, and fuel (except Nebula Crystals)
             </span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-purple-400 mt-0.5">•</span>
             <span>
-              You gain Nebula Crystals based on your total stardust earned:{' '}
-              <code className="text-blue-400">floor(sqrt(totalStardust / 1M))</code>
+              You gain Nebula Crystals based on your total fuel earned:{' '}
+              <code className="text-blue-400">floor(sqrt(totalFuel / 1M))</code>
             </span>
           </li>
           <li className="flex items-start gap-2">
@@ -99,7 +99,7 @@ export const PrestigePanel: React.FC<PrestigePanelProps> = ({
           </li>
           <li className="flex items-start gap-2">
             <span className="text-purple-400 mt-0.5">•</span>
-            <span>Minimum requirement: 1M total stardust earned</span>
+            <span>Minimum requirement: 1M total fuel earned</span>
           </li>
         </ul>
       </Card>
@@ -109,9 +109,9 @@ export const PrestigePanel: React.FC<PrestigePanelProps> = ({
         <Card title="Progress to Prestige" className="p-4">
           <div className="space-y-2">
             <div className="flex justify-between text-sm text-gray-400">
-              <span>Total Stardust Earned</span>
+              <span>Total Fuel Earned</span>
               <span>
-                {formatNumber(totalStardustEarned)} / {formatNumber(minStardustRequired)}
+                {formatNumber(totalFuelEarned)} / {formatNumber(minFuelRequired)}
               </span>
             </div>
             <div className="w-full bg-gray-700 rounded-full h-2">
@@ -125,7 +125,7 @@ export const PrestigePanel: React.FC<PrestigePanelProps> = ({
               />
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              You need {formatNumber(minStardustRequired - totalStardustEarned)} more total stardust
+              You need {formatNumber(minFuelRequired - totalFuelEarned)} more total fuel
               to unlock prestige
             </p>
           </div>

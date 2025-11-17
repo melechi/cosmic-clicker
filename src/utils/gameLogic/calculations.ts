@@ -128,21 +128,21 @@ export function calculateClickPower(
 
 /**
  * Calculate Nebula Crystals earned from prestige
- * @param totalStardustEarned - Total fuel earned in current run
+ * @param totalFuelEarned - Total fuel earned in current run
  * @param prestigeBonus - Bonus from prestige upgrades (e.g., 0.1 for 10% bonus)
  * @returns Number of Nebula Crystals that would be earned
  */
 export function calculatePrestigeReward(
-  totalStardustEarned: number,
+  totalFuelEarned: number,
   prestigeBonus: number = 0
 ): number {
-  if (totalStardustEarned < GAME_CONFIG.MIN_PRESTIGE_STARDUST) {
+  if (totalFuelEarned < GAME_CONFIG.MIN_PRESTIGE_STARDUST) {
     return 0;
   }
 
-  // Base calculation: floor(sqrt(totalStardust / 1,000,000))
+  // Base calculation: floor(sqrt(totalFuel / 1,000,000))
   const baseReward = Math.floor(
-    Math.sqrt(totalStardustEarned / GAME_CONFIG.PRESTIGE_DIVISOR)
+    Math.sqrt(totalFuelEarned / GAME_CONFIG.PRESTIGE_DIVISOR)
   );
 
   // Apply prestige bonus
@@ -177,33 +177,33 @@ export function calculateProductionMultiplier(
 
 /**
  * Check if player can afford a cost
- * @param currentStardust - Current fuel amount
+ * @param currentFuel - Current fuel amount
  * @param cost - Cost of the item
  * @returns True if player can afford
  */
-export function canAfford(currentStardust: number, cost: number): boolean {
-  return currentStardust >= cost;
+export function canAfford(currentFuel: number, cost: number): boolean {
+  return currentFuel >= cost;
 }
 
 /**
  * Check if player can prestige
- * @param totalStardustEarned - Total fuel earned in current run
+ * @param totalFuelEarned - Total fuel earned in current run
  * @returns True if player can prestige
  */
-export function canPrestige(totalStardustEarned: number): boolean {
-  return totalStardustEarned >= GAME_CONFIG.MIN_PRESTIGE_STARDUST;
+export function canPrestige(totalFuelEarned: number): boolean {
+  return totalFuelEarned >= GAME_CONFIG.MIN_PRESTIGE_STARDUST;
 }
 
 /**
  * Calculate the maximum number of buildings that can be purchased
- * @param currentStardust - Available fuel
+ * @param currentFuel - Available fuel
  * @param baseCost - Base cost of the building
  * @param multiplier - Cost multiplier
  * @param currentCount - Current number owned
  * @returns Maximum number that can be purchased
  */
 export function calculateMaxAffordable(
-  currentStardust: number,
+  currentFuel: number,
   baseCost: number,
   multiplier: number,
   currentCount: number
@@ -214,7 +214,7 @@ export function calculateMaxAffordable(
   // Iteratively calculate until we can't afford more
   while (
     totalCost + calculateBuildingCost(baseCost, multiplier, currentCount + count) <=
-    currentStardust
+    currentFuel
   ) {
     totalCost += calculateBuildingCost(baseCost, multiplier, currentCount + count);
     count++;
@@ -274,7 +274,7 @@ export function getPrestigeStartingResources(prestigeUpgrades: PrestigeUpgrade[]
  * @returns True if achievement is unlocked
  */
 export function checkAchievementUnlocked(
-  condition: 'totalClicks' | 'buildingCount' | 'totalStardustEarned' | 'totalPrestiges' | 'totalNebulaCrystals',
+  condition: 'totalClicks' | 'buildingCount' | 'totalFuelEarned' | 'totalPrestiges' | 'totalNebulaCrystals',
   threshold: number,
   currentValue: number,
   buildingId?: string,

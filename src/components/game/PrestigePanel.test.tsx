@@ -8,7 +8,7 @@ describe('PrestigePanel', () => {
     const mockOnPrestige = vi.fn();
     render(
       <PrestigePanel
-        totalStardustEarned={0}
+        totalFuelEarned={0}
         currentNebulaCrystals={0}
         crystalsToGain={0}
         canPrestige={false}
@@ -25,7 +25,7 @@ describe('PrestigePanel', () => {
     const mockOnPrestige = vi.fn();
     render(
       <PrestigePanel
-        totalStardustEarned={5000000}
+        totalFuelEarned={5000000}
         currentNebulaCrystals={10}
         crystalsToGain={0}
         canPrestige={false}
@@ -36,14 +36,14 @@ describe('PrestigePanel', () => {
 
     expect(screen.getByText('10')).toBeInTheDocument(); // crystals
     expect(screen.getByText('+10%')).toBeInTheDocument(); // bonus
-    expect(screen.getByText('5.00M')).toBeInTheDocument(); // total stardust
+    expect(screen.getByText('5.00M')).toBeInTheDocument(); // total fuel
   });
 
   it('should show how prestige works section', () => {
     const mockOnPrestige = vi.fn();
     render(
       <PrestigePanel
-        totalStardustEarned={0}
+        totalFuelEarned={0}
         currentNebulaCrystals={0}
         crystalsToGain={0}
         canPrestige={false}
@@ -53,14 +53,14 @@ describe('PrestigePanel', () => {
     );
 
     expect(screen.getByText('How Prestige Works')).toBeInTheDocument();
-    expect(screen.getByText(/minimum requirement: 1m total stardust earned/i)).toBeInTheDocument();
+    expect(screen.getByText(/minimum requirement: 1m total fuel earned/i)).toBeInTheDocument();
   });
 
   it('should show progress when cannot prestige', () => {
     const mockOnPrestige = vi.fn();
     render(
       <PrestigePanel
-        totalStardustEarned={500000}
+        totalFuelEarned={500000}
         currentNebulaCrystals={0}
         crystalsToGain={0}
         canPrestige={false}
@@ -77,7 +77,7 @@ describe('PrestigePanel', () => {
     const mockOnPrestige = vi.fn();
     render(
       <PrestigePanel
-        totalStardustEarned={2000000}
+        totalFuelEarned={2000000}
         currentNebulaCrystals={0}
         crystalsToGain={1}
         canPrestige={true}
@@ -94,7 +94,7 @@ describe('PrestigePanel', () => {
     const mockOnPrestige = vi.fn();
     render(
       <PrestigePanel
-        totalStardustEarned={2000000}
+        totalFuelEarned={2000000}
         currentNebulaCrystals={0}
         crystalsToGain={1}
         canPrestige={true}
@@ -114,7 +114,7 @@ describe('PrestigePanel', () => {
     const mockOnPrestige = vi.fn();
     render(
       <PrestigePanel
-        totalStardustEarned={2000000}
+        totalFuelEarned={2000000}
         currentNebulaCrystals={0}
         crystalsToGain={1}
         canPrestige={true}
@@ -141,7 +141,7 @@ describe('PrestigePanel', () => {
     const mockOnPrestige = vi.fn();
     render(
       <PrestigePanel
-        totalStardustEarned={2000000}
+        totalFuelEarned={2000000}
         currentNebulaCrystals={0}
         crystalsToGain={1}
         canPrestige={true}
@@ -164,7 +164,7 @@ describe('PrestigePanel', () => {
     const mockOnPrestige = vi.fn();
     render(
       <PrestigePanel
-        totalStardustEarned={2000000}
+        totalFuelEarned={2000000}
         currentNebulaCrystals={0}
         crystalsToGain={1}
         canPrestige={true}
@@ -192,7 +192,7 @@ describe('PrestigePanel', () => {
     const mockOnPrestige = vi.fn();
     render(
       <PrestigePanel
-        totalStardustEarned={10000000}
+        totalFuelEarned={10000000}
         currentNebulaCrystals={0}
         crystalsToGain={3}
         canPrestige={true}
@@ -211,7 +211,7 @@ describe('PrestigePanel', () => {
     const mockOnPrestige = vi.fn();
     const { container } = render(
       <PrestigePanel
-        totalStardustEarned={500000}
+        totalFuelEarned={500000}
         currentNebulaCrystals={0}
         crystalsToGain={0}
         canPrestige={false}
@@ -228,7 +228,7 @@ describe('PrestigePanel', () => {
     const mockOnPrestige = vi.fn();
     render(
       <PrestigePanel
-        totalStardustEarned={300000}
+        totalFuelEarned={300000}
         currentNebulaCrystals={0}
         crystalsToGain={0}
         canPrestige={false}
@@ -237,6 +237,6 @@ describe('PrestigePanel', () => {
       />
     );
 
-    expect(screen.getByText(/you need 700K more total stardust/i)).toBeInTheDocument();
+    expect(screen.getByText(/you need 700K more total fuel/i)).toBeInTheDocument();
   });
 });

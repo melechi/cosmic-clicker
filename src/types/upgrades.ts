@@ -8,7 +8,7 @@ export interface Upgrade {
   name: string;
   /** Description of the upgrade effect */
   description: string;
-  /** Cost in stardust or nebula crystals */
+  /** Cost in fuel or nebula crystals */
   cost: number;
   /** Type of upgrade */
   type: 'click' | 'production' | 'prestige' | 'autoClick';
@@ -50,7 +50,7 @@ export interface PrestigeUpgrade extends Upgrade {
   cost: number;
   /** Effect type */
   effect: 'startStardust' | 'startBuildings' | 'clickMultiplier' | 'productionMultiplier' | 'autoClickStart' | 'prestigeBonus';
-  /** Effect value (amount of stardust, number of buildings, multiplier, etc.) */
+  /** Effect value (amount of fuel, number of buildings, multiplier, etc.) */
   value: number;
 }
 

@@ -42,3 +42,17 @@ export type { ZoneProgressBarProps } from './ZoneProgressBar';
 
 export { DebugPanel } from './DebugPanel';
 export type { DebugPanelProps } from './DebugPanel';
+
+export { GameObject } from './GameObject';
+
+export { ObjectSpawner } from './ObjectSpawner';
+
+export { ResourceDisplay } from './ResourceDisplay';
+export type { ResourceDisplayProps } from './ResourceDisplay';
+
+export { CargoHoldPanel } from './CargoHoldPanel';
+
+export { ConverterControls } from './ConverterControls';
+
+export { ShipControls } from './ShipControls';
+export type { ShipControlsProps } from './ShipControls';

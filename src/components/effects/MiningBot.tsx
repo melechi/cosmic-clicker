@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-interface MiningBotProps {
+export interface MiningBotProps {
   angle: number; // Orbital position in degrees
   distance: number; // Distance from center in pixels
   index: number; // Bot index for animation delay
@@ -11,10 +11,9 @@ interface LaserState {
   isActive: boolean;
 }
 
-export const MiningBot: React.FC<MiningBotProps> = ({ angle, distance, index }) => {
+export const MiningBot: React.FC<MiningBotProps> = ({ index }) => {
   const [laser, setLaser] = useState<LaserState>({ id: 0, isActive: false });
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [targetPosition, setTargetPosition] = useState({ x: 0, y: 0 });
   const [isMoving, setIsMoving] = useState(false);
   const [shotsFired, setShotsFired] = useState(0);
 
@@ -37,7 +36,6 @@ export const MiningBot: React.FC<MiningBotProps> = ({ angle, distance, index }) 
   useEffect(() => {
     const initialPos = getRandomPosition();
     setPosition(initialPos);
-    setTargetPosition(initialPos);
   }, []);
 
   // Movement and mining behavior
@@ -48,7 +46,6 @@ export const MiningBot: React.FC<MiningBotProps> = ({ angle, distance, index }) 
       const movementLoop = () => {
         // Pick new target position
         const newTarget = getRandomPosition();
-        setTargetPosition(newTarget);
         setIsMoving(true);
         setShotsFired(0);
 

@@ -16,6 +16,9 @@ import {
   Settings,
   ZoneProgressBar,
   DebugPanel,
+  CargoHoldPanel,
+  ObjectSpawner,
+  ShipControls,
 } from '@/components/game';
 import { BackgroundParticles } from '@/components/effects';
 import { Modal } from '@/components/ui/Modal';
@@ -31,12 +34,15 @@ import {
   PRESTIGE_UPGRADES,
   GAME_CONFIG,
   getFuelRequiredForZone,
-  canWarpToNextZone,
 } from '@/constants';
 import {
   calculateBuildingCost,
   calculatePrestigeReward,
 } from '@/utils/gameLogic/calculations';
+
+// Game area dimensions
+const GAME_WIDTH = 800;
+const GAME_HEIGHT = 600;
 
 /**
  * Main game content component
@@ -91,14 +97,19 @@ function GameContent() {
           savedState.productionPerSecond
         );
 
-        if (offlineInfo.stardustEarned > 0) {
-          setOfflineProgress(offlineInfo);
+        if (offlineInfo.fuelEarned > 0) {
+          setOfflineProgress({
+            stardustEarned: offlineInfo.fuelEarned,
+            timeAway: offlineInfo.timeAway,
+            timeAwayDisplay: offlineInfo.timeAwayDisplay,
+            wasCapped: offlineInfo.wasCapped,
+          });
           setShowOfflineModal(true);
 
           // Apply offline progress AFTER loading
           dispatch(
             actions.applyOfflineProgress(
-              offlineInfo.stardustEarned,
+              offlineInfo.fuelEarned,
               offlineInfo.timeAway
             )
           );
@@ -143,7 +154,7 @@ function GameContent() {
         console.log('💾 Saving game now...', {
           fuel: Math.floor(state.fuel),
           buildings: state.buildings,
-          totalStardust: Math.floor(state.totalStardustEarned)
+          totalFuel: Math.floor(state.totalFuelEarned)
         });
 
         saveGame(state);
@@ -193,8 +204,8 @@ function GameContent() {
           case 'totalClicks':
             shouldUnlock = state.statistics.totalClicks >= achievement.threshold;
             break;
-          case 'totalStardustEarned':
-            shouldUnlock = state.totalStardustEarned >= achievement.threshold;
+          case 'totalFuelEarned':
+            shouldUnlock = state.totalFuelEarned >= achievement.threshold;
             break;
           case 'buildingCount':
             if (achievement.buildingId) {
@@ -229,10 +240,6 @@ function GameContent() {
     return () => clearInterval(interval);
   }, [state, dispatch, toast]);
 
-  // Handle clicking
-  const handleClick = () => {
-    dispatch(actions.click());
-  };
 
   // Handle closing offline modal
   const handleCloseOfflineModal = () => {
@@ -253,7 +260,7 @@ function GameContent() {
   });
 
   // Calculate prestige info
-  const crystalsToGain = calculatePrestigeReward(state.totalStardustEarned, 0);
+  const crystalsToGain = calculatePrestigeReward(state.totalFuelEarned, 0);
   const canPrestige = crystalsToGain > 0;
   const prestigeBonus = state.nebulaCrystals * GAME_CONFIG.NEBULA_CRYSTAL_BONUS;
 
@@ -267,8 +274,8 @@ function GameContent() {
       case 'totalClicks':
         current = state.statistics.totalClicks;
         break;
-      case 'totalStardustEarned':
-        current = state.totalStardustEarned;
+      case 'totalFuelEarned':
+        current = state.totalFuelEarned;
         break;
       case 'buildingCount':
         if (achievement.buildingId) {
@@ -295,8 +302,8 @@ function GameContent() {
             buildings={BUILDINGS}
             ownedCounts={state.buildings}
             currentCosts={buildingCosts}
-            stardust={state.fuel}
-            onPurchase={(buildingId) => dispatch(actions.buyBuilding(buildingId, 1))}
+            fuel={state.fuel}
+            onPurchase={(buildingId: string) => dispatch(actions.buyBuilding(buildingId, 1))}
             productionByBuilding={buildingProduction}
           />
         );
@@ -308,8 +315,8 @@ function GameContent() {
             autoClickUpgrades={AUTO_CLICK_UPGRADES}
             prestigeUpgrades={PRESTIGE_UPGRADES}
             purchasedUpgrades={new Set(state.upgrades)}
-            stardust={state.fuel}
-            onPurchase={(upgradeId) => dispatch(actions.buyUpgrade(upgradeId))}
+            fuel={state.fuel}
+            onPurchase={(upgradeId: string) => dispatch(actions.buyUpgrade(upgradeId))}
           />
         );
       case 'achievements':
@@ -323,7 +330,7 @@ function GameContent() {
       case 'prestige':
         return (
           <PrestigePanel
-            totalStardustEarned={state.totalStardustEarned}
+            totalFuelEarned={state.totalFuelEarned}
             currentNebulaCrystals={state.nebulaCrystals}
             crystalsToGain={crystalsToGain}
             canPrestige={canPrestige}
@@ -335,14 +342,27 @@ function GameContent() {
         return <Statistics statistics={state.statistics} />;
       case 'settings':
         return <Settings isOpen={true} onClose={() => setActiveTab('buildings')} />;
+      case 'cargo':
+        return <CargoHoldPanel />;
+      case 'ship':
+        return (
+          <ShipControls
+            currentSpeed={state.shipSpeed}
+            fuel={state.fuel}
+            tankCapacity={state.modules.engine.tankCapacity}
+            maxSpeedUnlocked={state.modules.engine.maxSpeedUnlocked}
+            fuelEfficiencyPercent={state.modules.engine.fuelEfficiencyPercent}
+            onSpeedChange={(speed: import('@/types').ShipSpeed) => dispatch(actions.setShipSpeed(speed))}
+          />
+        );
       default:
         return (
           <BuildingList
             buildings={BUILDINGS}
             ownedCounts={state.buildings}
             currentCosts={buildingCosts}
-            stardust={state.fuel}
-            onPurchase={(buildingId) => dispatch(actions.buyBuilding(buildingId, 1))}
+            fuel={state.fuel}
+            onPurchase={(buildingId: string) => dispatch(actions.buyBuilding(buildingId, 1))}
             productionByBuilding={buildingProduction}
           />
         );
@@ -358,6 +378,8 @@ function GameContent() {
       <MainLayout
         headerProps={{
           fuel: state.fuel,
+          tankCapacity: state.modules.engine.tankCapacity,
+          credits: state.credits,
           productionPerSecond: state.productionPerSecond,
           nebulaCrystals: state.nebulaCrystals,
           clickPower: state.clickPower,
@@ -367,20 +389,23 @@ function GameContent() {
       >
         {/* Main layout with fixed right sidebar */}
         <div className="flex flex-col lg:flex-row h-full relative">
-          {/* Main content area */}
+          {/* Main content area - Game View */}
           <div className="flex-1 flex flex-col relative min-h-[calc(100vh-200px)]">
-            {/* Game view area - spaceship will be at bottom */}
-            <div className="flex-1 relative">
-              {/* This is where zone backgrounds, asteroids, etc will go */}
-            </div>
+            {/* Game area container with layered components */}
+            <div className="relative flex-1 flex items-center justify-center">
+              {/* Clicker - Full game area background, handles clicks, renders ship and lasers */}
+              <div className="relative" style={{ width: GAME_WIDTH, height: GAME_HEIGHT }}>
+                <Clicker />
 
-            {/* Spaceship at bottom center */}
-            <div className="flex items-end justify-center pb-8">
-              <Clicker
-                onClick={handleClick}
-                clickPower={state.clickPower}
-                spaceMinerCount={state.buildings['spaceMiner'] || 0}
-              />
+                {/* ObjectSpawner - Overlays game objects on top */}
+                <div className="absolute inset-0 pointer-events-none">
+                  <ObjectSpawner
+                    gameWidth={GAME_WIDTH}
+                    gameHeight={GAME_HEIGHT}
+                    enabled={true}
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
@@ -400,25 +425,37 @@ function GameContent() {
           <div className="flex justify-around items-center p-2">
             <button
               onClick={() => setActiveTab(activeTab === 'buildings' ? 'buildings' : 'buildings')}
-              className="flex-1 px-4 py-3 text-sm font-semibold text-white hover:bg-gray-800 rounded transition-colors"
+              className={`flex-1 px-3 py-3 text-xs sm:text-sm font-semibold text-white hover:bg-gray-800 rounded transition-colors ${activeTab === 'buildings' ? 'bg-gray-800' : ''}`}
             >
               📦 Modules
             </button>
             <button
+              onClick={() => setActiveTab(activeTab === 'cargo' ? 'buildings' : 'cargo')}
+              className={`flex-1 px-3 py-3 text-xs sm:text-sm font-semibold text-white hover:bg-gray-800 rounded transition-colors ${activeTab === 'cargo' ? 'bg-gray-800' : ''}`}
+            >
+              🎒 Cargo
+            </button>
+            <button
+              onClick={() => setActiveTab(activeTab === 'ship' ? 'buildings' : 'ship')}
+              className={`flex-1 px-3 py-3 text-xs sm:text-sm font-semibold text-white hover:bg-gray-800 rounded transition-colors ${activeTab === 'ship' ? 'bg-gray-800' : ''}`}
+            >
+              🚀 Ship
+            </button>
+            <button
               onClick={() => setActiveTab(activeTab === 'upgrades' ? 'buildings' : 'upgrades')}
-              className="flex-1 px-4 py-3 text-sm font-semibold text-white hover:bg-gray-800 rounded transition-colors"
+              className={`flex-1 px-3 py-3 text-xs sm:text-sm font-semibold text-white hover:bg-gray-800 rounded transition-colors ${activeTab === 'upgrades' ? 'bg-gray-800' : ''}`}
             >
               ⚡ Upgrades
             </button>
             <button
               onClick={() => setActiveTab(activeTab === 'achievements' ? 'buildings' : 'achievements')}
-              className="flex-1 px-4 py-3 text-sm font-semibold text-white hover:bg-gray-800 rounded transition-colors"
+              className={`flex-1 px-3 py-3 text-xs sm:text-sm font-semibold text-white hover:bg-gray-800 rounded transition-colors ${activeTab === 'achievements' ? 'bg-gray-800' : ''}`}
             >
-              🏆 Achievements
+              🏆 Achieve
             </button>
             <button
               onClick={() => setActiveTab(activeTab === 'statistics' ? 'buildings' : 'statistics')}
-              className="flex-1 px-4 py-3 text-sm font-semibold text-white hover:bg-gray-800 rounded transition-colors"
+              className={`flex-1 px-3 py-3 text-xs sm:text-sm font-semibold text-white hover:bg-gray-800 rounded transition-colors ${activeTab === 'statistics' ? 'bg-gray-800' : ''}`}
             >
               📊 Stats
             </button>
@@ -435,9 +472,9 @@ function GameContent() {
 
       {/* Debug Panel */}
       <DebugPanel
-        onAddFuel={(amount) => dispatch(actions.addFuel(amount))}
-        onSetZone={(zone) => dispatch(actions.setZone(zone))}
-        onAddBuilding={(buildingId, quantity) => {
+        onAddFuel={(amount: number) => dispatch(actions.addFuel(amount))}
+        onSetZone={(zone: number) => dispatch(actions.setZone(zone))}
+        onAddBuilding={(buildingId: string, quantity: number) => {
           for (let i = 0; i < quantity; i++) {
             dispatch(actions.buyBuilding(buildingId, 1));
           }

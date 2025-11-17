@@ -74,9 +74,9 @@ export const UpgradeItem: React.FC<UpgradeItemProps> = ({
           {/* Cost and Purchase */}
           {!isPurchased && (
             <div className="flex items-center justify-between gap-2">
-              <Tooltip content="Stardust cost to purchase this upgrade">
+              <Tooltip content="Fuel cost to purchase this upgrade">
                 <div className="text-yellow-400 font-semibold">
-                  {formatNumber(upgrade.cost)} SD
+                  {formatNumber(upgrade.cost)} ⛽
                 </div>
               </Tooltip>
               <Button
@@ -84,7 +84,7 @@ export const UpgradeItem: React.FC<UpgradeItemProps> = ({
                 size="small"
                 onClick={handlePurchase}
                 disabled={!canAfford}
-                aria-label={`Purchase ${upgrade.name} for ${formatNumber(upgrade.cost)} stardust`}
+                aria-label={`Purchase ${upgrade.name} for ${formatNumber(upgrade.cost)} fuel`}
               >
                 Buy
               </Button>

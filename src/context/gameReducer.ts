@@ -22,6 +22,21 @@ import {
   getPrestigeStartingResources,
   canAfford,
 } from '@/utils/gameLogic/calculations';
+import {
+  updateObjectPosition,
+  updateObjectRotation,
+  checkOutOfBounds,
+  checkLaserHit,
+  checkLaserMultipleHits,
+} from '@/utils/gameLogic/objectPhysics';
+import {
+  convertResourceToFuel,
+  calculateResourceValue,
+  calculateFuelConsumption,
+  calculateTotalCargo,
+  calculateMaxCargoAddition,
+  SPEED_FUEL_MULTIPLIERS,
+} from '@/utils/gameLogic/resourceConversion';
 
 /**
  * Main game reducer function
@@ -326,11 +341,50 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const { deltaTime } = action.payload;
       const fuelEarned = state.productionPerSecond * deltaTime;
 
+      // Phase 1: Calculate fuel consumption based on ship speed
+      const speedMultiplier = SPEED_FUEL_MULTIPLIERS[state.shipSpeed] || 1.0;
+      const fuelConsumed = calculateFuelConsumption(
+        1.0, // Base consumption rate
+        speedMultiplier,
+        state.modules.engine.fuelEfficiencyPercent,
+        deltaTime
+      );
+
+      // Stop ship if out of fuel
+      const newFuel = Math.max(0, state.fuel + fuelEarned - fuelConsumed);
+      const actualSpeed = newFuel > 0 || speedMultiplier === 0 ? state.shipSpeed : 'stop';
+
+      // Phase 1: Update object positions and remove out-of-bounds objects
+      const screenHeight = 800; // TODO: Get from game config or window size
+      const updatedObjects = state.objects
+        .map((obj) => {
+          if (obj.destroyed) return obj;
+
+          // Update position
+          const newPosition = updateObjectPosition(obj, deltaTime);
+
+          // Update rotation if object has rotation
+          const newRotation =
+            obj.rotation !== undefined && obj.rotationSpeed !== undefined
+              ? updateObjectRotation(obj.rotation, obj.rotationSpeed, deltaTime)
+              : obj.rotation;
+
+          return {
+            ...obj,
+            position: newPosition,
+            rotation: newRotation,
+          };
+        })
+        .filter((obj) => !checkOutOfBounds(obj, screenHeight)); // Remove out-of-bounds objects
+
       return {
         ...state,
-        fuel: state.fuel + fuelEarned,
+        fuel: newFuel,
         totalFuelEarned: state.totalFuelEarned + fuelEarned,
         zoneProgress: state.zoneProgress + fuelEarned,
+        shipSpeed: actualSpeed,
+        fuelConsumptionRate: fuelConsumed / deltaTime,
+        objects: updatedObjects,
         statistics: {
           ...state.statistics,
           currentSessionTime: state.statistics.currentSessionTime + deltaTime,
@@ -394,6 +448,375 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         fuel: state.fuel + amount,
         totalFuelEarned: state.totalFuelEarned + amount,
         zoneProgress: state.zoneProgress + amount,
+      };
+    }
+
+    // ========================================
+    // Phase 1: Object Interaction Actions
+    // ========================================
+
+    case 'SPAWN_OBJECT': {
+      const { object } = action.payload;
+      return {
+        ...state,
+        objects: [...state.objects, object],
+      };
+    }
+
+    case 'DESPAWN_OBJECT': {
+      const { objectId } = action.payload;
+      return {
+        ...state,
+        objects: state.objects.filter((obj) => obj.id !== objectId),
+      };
+    }
+
+    case 'UPDATE_OBJECTS': {
+      const { deltaTime } = action.payload;
+      const screenHeight = 800; // TODO: Get from game config
+
+      const updatedObjects = state.objects
+        .map((obj) => {
+          if (obj.destroyed) return obj;
+
+          const newPosition = updateObjectPosition(obj, deltaTime);
+          const newRotation =
+            obj.rotation !== undefined && obj.rotationSpeed !== undefined
+              ? updateObjectRotation(obj.rotation, obj.rotationSpeed, deltaTime)
+              : obj.rotation;
+
+          return {
+            ...obj,
+            position: newPosition,
+            rotation: newRotation,
+          };
+        })
+        .filter((obj) => !checkOutOfBounds(obj, screenHeight));
+
+      return {
+        ...state,
+        objects: updatedObjects,
+      };
+    }
+
+    // ========================================
+    // Phase 1: Laser & Mining Actions
+    // ========================================
+
+    case 'FIRE_LASER': {
+      const { position } = action.payload;
+      const { laser } = state.modules;
+
+      // Check if laser can fire (within range)
+      const hitObjects = laser.piercing
+        ? checkLaserMultipleHits(position, state.objects, laser.range, laser.laserCount)
+        : [checkLaserHit(position, state.objects, laser.range)].filter(Boolean);
+
+      if (hitObjects.length === 0) {
+        return state; // No hits
+      }
+
+      // Apply damage to hit objects
+      let newState = state;
+      for (const hitObject of hitObjects) {
+        if (!hitObject) continue;
+
+        const newHealth = hitObject.health - laser.damage;
+
+        if (newHealth <= 0) {
+          // Object destroyed - collect resources
+          const updatedObjects = newState.objects.map((obj) =>
+            obj.id === hitObject.id ? { ...obj, health: 0, destroyed: true } : obj
+          );
+
+          // Add resources to cargo
+          let updatedResources = { ...newState.resources };
+          const totalCargo = calculateTotalCargo(updatedResources);
+
+          for (const drop of hitObject.resourceDrops) {
+            const maxAddition = calculateMaxCargoAddition(
+              totalCargo,
+              state.modules.cargoHold.totalCapacity,
+              drop.amount
+            );
+
+            if (maxAddition > 0) {
+              updatedResources[drop.type] =
+                (updatedResources[drop.type] || 0) + maxAddition;
+            }
+          }
+
+          // Add special drops (fuel, credits)
+          const fuelBonus = hitObject.specialDrops?.fuel || 0;
+          const creditBonus = hitObject.specialDrops?.credits || 0;
+
+          newState = {
+            ...newState,
+            objects: updatedObjects,
+            resources: updatedResources,
+            fuel: newState.fuel + fuelBonus,
+            credits: newState.credits + creditBonus,
+          };
+        } else {
+          // Just damage the object
+          const updatedObjects = newState.objects.map((obj) =>
+            obj.id === hitObject.id ? { ...obj, health: newHealth } : obj
+          );
+
+          newState = {
+            ...newState,
+            objects: updatedObjects,
+          };
+        }
+      }
+
+      return newState;
+    }
+
+    case 'DAMAGE_OBJECT': {
+      const { objectId, damage } = action.payload;
+      const targetObject = state.objects.find((obj) => obj.id === objectId);
+
+      if (!targetObject || targetObject.destroyed) {
+        return state;
+      }
+
+      const newHealth = Math.max(0, targetObject.health - damage);
+      const isDestroyed = newHealth <= 0;
+
+      const updatedObjects = state.objects.map((obj) =>
+        obj.id === objectId
+          ? { ...obj, health: newHealth, destroyed: isDestroyed }
+          : obj
+      );
+
+      // If destroyed, collect resources
+      if (isDestroyed) {
+        let updatedResources = { ...state.resources };
+        const totalCargo = calculateTotalCargo(updatedResources);
+
+        for (const drop of targetObject.resourceDrops) {
+          const maxAddition = calculateMaxCargoAddition(
+            totalCargo,
+            state.modules.cargoHold.totalCapacity,
+            drop.amount
+          );
+
+          if (maxAddition > 0) {
+            updatedResources[drop.type] = (updatedResources[drop.type] || 0) + maxAddition;
+          }
+        }
+
+        const fuelBonus = targetObject.specialDrops?.fuel || 0;
+        const creditBonus = targetObject.specialDrops?.credits || 0;
+
+        return {
+          ...state,
+          objects: updatedObjects,
+          resources: updatedResources,
+          fuel: state.fuel + fuelBonus,
+          credits: state.credits + creditBonus,
+        };
+      }
+
+      return {
+        ...state,
+        objects: updatedObjects,
+      };
+    }
+
+    case 'DESTROY_OBJECT': {
+      const { objectId } = action.payload;
+      const targetObject = state.objects.find((obj) => obj.id === objectId);
+
+      if (!targetObject) {
+        return state;
+      }
+
+      // Mark object as destroyed
+      const updatedObjects = state.objects.map((obj) =>
+        obj.id === objectId ? { ...obj, health: 0, destroyed: true } : obj
+      );
+
+      // Collect resources
+      let updatedResources = { ...state.resources };
+      const totalCargo = calculateTotalCargo(updatedResources);
+
+      for (const drop of targetObject.resourceDrops) {
+        const maxAddition = calculateMaxCargoAddition(
+          totalCargo,
+          state.modules.cargoHold.totalCapacity,
+          drop.amount
+        );
+
+        if (maxAddition > 0) {
+          updatedResources[drop.type] = (updatedResources[drop.type] || 0) + maxAddition;
+        }
+      }
+
+      const fuelBonus = targetObject.specialDrops?.fuel || 0;
+      const creditBonus = targetObject.specialDrops?.credits || 0;
+
+      return {
+        ...state,
+        objects: updatedObjects,
+        resources: updatedResources,
+        fuel: state.fuel + fuelBonus,
+        credits: state.credits + creditBonus,
+      };
+    }
+
+    // ========================================
+    // Phase 1: Resource Management Actions
+    // ========================================
+
+    case 'COLLECT_RESOURCE': {
+      const { resourceType, amount } = action.payload;
+      const totalCargo = calculateTotalCargo(state.resources);
+      const maxAddition = calculateMaxCargoAddition(
+        totalCargo,
+        state.modules.cargoHold.totalCapacity,
+        amount
+      );
+
+      if (maxAddition <= 0) {
+        return state; // Cargo full
+      }
+
+      return {
+        ...state,
+        resources: {
+          ...state.resources,
+          [resourceType]: (state.resources[resourceType] || 0) + maxAddition,
+        },
+      };
+    }
+
+    case 'CONVERT_RESOURCES': {
+      const { resourceType, amount } = action.payload;
+      const currentAmount = state.resources[resourceType] || 0;
+
+      if (currentAmount < amount) {
+        return state; // Not enough resources
+      }
+
+      const fuelGained = convertResourceToFuel(
+        resourceType,
+        amount,
+        state.modules.converter.efficiencyPercent
+      );
+
+      return {
+        ...state,
+        resources: {
+          ...state.resources,
+          [resourceType]: currentAmount - amount,
+        },
+        fuel: state.fuel + fuelGained,
+        totalFuelEarned: state.totalFuelEarned + fuelGained,
+      };
+    }
+
+    case 'SELL_RESOURCES': {
+      const { resourceType, amount } = action.payload;
+      const currentAmount = state.resources[resourceType] || 0;
+
+      if (currentAmount < amount) {
+        return state; // Not enough resources
+      }
+
+      const creditsGained = calculateResourceValue(resourceType, amount, 1.0);
+
+      return {
+        ...state,
+        resources: {
+          ...state.resources,
+          [resourceType]: currentAmount - amount,
+        },
+        credits: state.credits + creditsGained,
+      };
+    }
+
+    // ========================================
+    // Phase 1: Ship Control Actions
+    // ========================================
+
+    case 'SET_SHIP_SPEED': {
+      const { speed } = action.payload;
+
+      // Check if speed is unlocked
+      const { engine } = state.modules;
+      const speedOrder: Array<typeof speed> = ['stop', 'slow', 'normal', 'fast', 'boost'];
+      const maxSpeedIndex = speedOrder.indexOf(engine.maxSpeedUnlocked);
+      const requestedSpeedIndex = speedOrder.indexOf(speed);
+
+      if (requestedSpeedIndex > maxSpeedIndex) {
+        return state; // Speed not unlocked yet
+      }
+
+      // Calculate new fuel consumption rate
+      const speedMultiplier = SPEED_FUEL_MULTIPLIERS[speed] || 1.0;
+      const newConsumptionRate = speedMultiplier * (engine.fuelEfficiencyPercent / 100);
+
+      return {
+        ...state,
+        shipSpeed: speed,
+        fuelConsumptionRate: newConsumptionRate,
+      };
+    }
+
+    case 'CONSUME_FUEL': {
+      const { amount } = action.payload;
+      const newFuel = Math.max(0, state.fuel - amount);
+
+      // Stop ship if out of fuel
+      const newSpeed = newFuel > 0 ? state.shipSpeed : 'stop';
+
+      return {
+        ...state,
+        fuel: newFuel,
+        shipSpeed: newSpeed,
+      };
+    }
+
+    // ========================================
+    // Phase 1: Module Upgrade Actions
+    // ========================================
+
+    case 'UPGRADE_MODULE': {
+      const { moduleType, upgradeId, cost } = action.payload;
+
+      if (state.credits < cost) {
+        return state; // Not enough credits
+      }
+
+      // Check if already purchased
+      const module = state.modules[moduleType];
+      if (module.purchasedUpgrades.includes(upgradeId)) {
+        return state;
+      }
+
+      // Add upgrade to purchased list
+      const updatedModule = {
+        ...module,
+        purchasedUpgrades: [...module.purchasedUpgrades, upgradeId],
+      };
+
+      // Note: Actual stat changes should be applied by upgrade effects
+      // This is a generic handler - specific upgrade effects should be
+      // handled in a separate system or passed in the payload
+
+      return {
+        ...state,
+        credits: state.credits - cost,
+        modules: {
+          ...state.modules,
+          [moduleType]: updatedModule,
+        },
+        statistics: {
+          ...state.statistics,
+          upgradesPurchased: state.statistics.upgradesPurchased + 1,
+        },
       };
     }
 

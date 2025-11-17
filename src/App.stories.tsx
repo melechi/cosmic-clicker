@@ -61,8 +61,8 @@ export const EarlyGame: Story = {
   beforeEach: () => {
     const earlyGameState: GameState = {
       ...initialGameState,
-      stardust: 500,
-      totalStardustEarned: 2000,
+      fuel: 500,
+      totalFuelEarned: 2000,
       clickPower: 1,
       productionPerSecond: 5.5,
       buildings: {
@@ -101,8 +101,8 @@ export const MidGame: Story = {
   beforeEach: () => {
     const midGameState: GameState = {
       ...initialGameState,
-      stardust: 50000,
-      totalStardustEarned: 500000,
+      fuel: 50000,
+      totalFuelEarned: 500000,
       clickPower: 5,
       productionPerSecond: 250,
       buildings: {
@@ -154,8 +154,8 @@ export const ReadyToPrestige: Story = {
   beforeEach: () => {
     const lateGameState: GameState = {
       ...initialGameState,
-      stardust: 2000000,
-      totalStardustEarned: 5000000,
+      fuel: 2000000,
+      totalFuelEarned: 5000000,
       clickPower: 10,
       productionPerSecond: 5000,
       buildings: {
@@ -215,8 +215,8 @@ export const PostPrestige: Story = {
   beforeEach: () => {
     const prestigeGameState: GameState = {
       ...initialGameState,
-      stardust: 1000,
-      totalStardustEarned: 1000,
+      fuel: 1000,
+      totalFuelEarned: 1000,
       nebulaCrystals: 5,
       clickPower: 1,
       productionPerSecond: 0.5,
@@ -266,8 +266,8 @@ export const WithOfflineProgress: Story = {
     const oneHourAgo = Date.now() - 3600000; // 1 hour ago
     const offlineGameState: GameState = {
       ...initialGameState,
-      stardust: 1000,
-      totalStardustEarned: 10000,
+      fuel: 1000,
+      totalFuelEarned: 10000,
       clickPower: 2,
       productionPerSecond: 50,
       buildings: {
@@ -307,8 +307,8 @@ export const MaxOfflineProgress: Story = {
     const tenHoursAgo = Date.now() - 36000000; // 10 hours ago
     const maxOfflineState: GameState = {
       ...initialGameState,
-      stardust: 5000,
-      totalStardustEarned: 100000,
+      fuel: 5000,
+      totalFuelEarned: 100000,
       clickPower: 5,
       productionPerSecond: 200,
       buildings: {
@@ -354,8 +354,8 @@ export const Endgame: Story = {
   beforeEach: () => {
     const endgameState: GameState = {
       ...initialGameState,
-      stardust: 1e15,
-      totalStardustEarned: 1e18,
+      fuel: 1e15,
+      totalFuelEarned: 1e18,
       nebulaCrystals: 50,
       clickPower: 100,
       productionPerSecond: 1e9,

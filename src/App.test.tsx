@@ -109,8 +109,8 @@ describe('App Integration Tests', () => {
     it('should load saved game state when save exists', () => {
       const mockSavedState: GameState = {
         ...initialGameState,
-        stardust: 1000,
-        totalStardustEarned: 1000,
+        fuel: 1000,
+        totalFuelEarned: 1000,
         buildings: { spaceMiner: 5 },
         lastSaveTime: Date.now(),
       };
@@ -138,7 +138,7 @@ describe('App Integration Tests', () => {
       const oneHourAgo = Date.now() - 3600000; // 1 hour ago
       const mockSavedState: GameState = {
         ...initialGameState,
-        stardust: 100,
+        fuel: 100,
         productionPerSecond: 10,
         lastSaveTime: oneHourAgo,
       };
@@ -359,7 +359,7 @@ describe('App Integration Tests', () => {
       const oneHourAgo = Date.now() - 3600000;
       const mockSavedState: GameState = {
         ...initialGameState,
-        stardust: 100,
+        fuel: 100,
         productionPerSecond: 10,
         lastSaveTime: oneHourAgo,
       };
@@ -391,7 +391,7 @@ describe('App Integration Tests', () => {
       const oneHourAgo = Date.now() - 3600000;
       const mockSavedState: GameState = {
         ...initialGameState,
-        stardust: 100,
+        fuel: 100,
         productionPerSecond: 10,
         lastSaveTime: oneHourAgo,
       };

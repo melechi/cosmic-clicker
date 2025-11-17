@@ -12,3 +12,6 @@ export type { SpaceshipProps } from './Spaceship';
 
 export { MiningBot } from './MiningBot';
 export type { MiningBotProps } from './MiningBot';
+
+export { LaserBeam } from './LaserBeam';
+export type { LaserBeamProps } from './LaserBeam';

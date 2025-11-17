@@ -41,7 +41,7 @@ describe('UpgradesPanel', () => {
         autoClickUpgrades={[]}
         prestigeUpgrades={[]}
         purchasedUpgrades={new Set()}
-        stardust={0}
+        fuel={0}
         onPurchase={mockOnPurchase}
       />
     );
@@ -59,7 +59,7 @@ describe('UpgradesPanel', () => {
         autoClickUpgrades={[autoClickUpgrade]}
         prestigeUpgrades={[]}
         purchasedUpgrades={new Set()}
-        stardust={0}
+        fuel={0}
         onPurchase={mockOnPurchase}
       />
     );
@@ -80,7 +80,7 @@ describe('UpgradesPanel', () => {
         autoClickUpgrades={[autoClickUpgrade]}
         prestigeUpgrades={[]}
         purchasedUpgrades={new Set()}
-        stardust={0}
+        fuel={0}
         onPurchase={mockOnPurchase}
       />
     );
@@ -102,7 +102,7 @@ describe('UpgradesPanel', () => {
         autoClickUpgrades={[]}
         prestigeUpgrades={[]}
         purchasedUpgrades={new Set()}
-        stardust={10000}
+        fuel={10000}
         onPurchase={mockOnPurchase}
       />
     );
@@ -133,7 +133,7 @@ describe('UpgradesPanel', () => {
         autoClickUpgrades={[]}
         prestigeUpgrades={[]}
         purchasedUpgrades={purchasedUpgrades}
-        stardust={10000}
+        fuel={10000}
         onPurchase={mockOnPurchase}
       />
     );
@@ -153,7 +153,7 @@ describe('UpgradesPanel', () => {
         autoClickUpgrades={[]}
         prestigeUpgrades={[]}
         purchasedUpgrades={purchasedUpgrades}
-        stardust={10000}
+        fuel={10000}
         onPurchase={mockOnPurchase}
       />
     );
@@ -171,7 +171,7 @@ describe('UpgradesPanel', () => {
         autoClickUpgrades={[]}
         prestigeUpgrades={[]}
         purchasedUpgrades={new Set()}
-        stardust={1000}
+        fuel={1000}
         onPurchase={mockOnPurchase}
       />
     );
@@ -191,7 +191,7 @@ describe('UpgradesPanel', () => {
         autoClickUpgrades={[]}
         prestigeUpgrades={[]}
         purchasedUpgrades={new Set()}
-        stardust={0}
+        fuel={0}
         onPurchase={mockOnPurchase}
       />
     );
@@ -211,7 +211,7 @@ describe('UpgradesPanel', () => {
         autoClickUpgrades={[]}
         prestigeUpgrades={[]}
         purchasedUpgrades={new Set()}
-        stardust={0}
+        fuel={0}
         onPurchase={mockOnPurchase}
       />
     );

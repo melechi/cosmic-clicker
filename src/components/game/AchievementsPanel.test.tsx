@@ -28,7 +28,7 @@ const mockAchievements: Achievement[] = [
     name: 'First Milestone',
     description: 'Reach a milestone',
     category: 'milestone',
-    condition: 'totalStardustEarned',
+    condition: 'totalFuelEarned',
     threshold: 1000,
     bonus: 0.01,
   },

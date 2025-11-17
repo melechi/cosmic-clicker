@@ -400,7 +400,7 @@ export const Settings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
               <div>
                 <p className="text-sm font-medium text-gray-700">Description</p>
                 <p className="text-gray-600">
-                  An incremental space game where you collect stardust through
+                  An incremental space game where you collect fuel through
                   clicking and automated production buildings, unlock upgrades,
                   and prestige for permanent bonuses.
                 </p>
@@ -409,7 +409,7 @@ export const Settings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
               <div>
                 <p className="text-sm font-medium text-gray-700">How to Play</p>
                 <ul className="list-disc list-inside text-gray-600 space-y-1">
-                  <li>Click the cosmic object to collect stardust</li>
+                  <li>Click the cosmic object to collect fuel</li>
                   <li>Purchase buildings to automate production</li>
                   <li>Buy upgrades to increase efficiency</li>
                   <li>Prestige to gain Nebula Crystals for permanent bonuses</li>
@@ -455,7 +455,7 @@ export const Settings: React.FC<SettingsProps> = ({ isOpen, onClose }) => {
             You will lose:
           </p>
           <ul className="list-disc list-inside text-gray-700 space-y-1">
-            <li>All stardust and resources</li>
+            <li>All fuel and resources</li>
             <li>All buildings and upgrades</li>
             <li>All achievements</li>
             <li>All Nebula Crystals</li>

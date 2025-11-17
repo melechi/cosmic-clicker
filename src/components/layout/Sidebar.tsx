@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 
-export type SidebarTab = 'buildings' | 'upgrades' | 'achievements' | 'prestige' | 'statistics' | 'settings';
+export type SidebarTab = 'buildings' | 'cargo' | 'ship' | 'upgrades' | 'achievements' | 'prestige' | 'statistics' | 'settings';
 
 export interface SidebarProps {
   activeTab: SidebarTab;

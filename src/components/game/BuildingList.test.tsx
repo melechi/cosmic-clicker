@@ -33,7 +33,7 @@ describe('BuildingList', () => {
         buildings={mockBuildings}
         ownedCounts={{}}
         currentCosts={{ spaceMiner: 10, asteroidHarvester: 100 }}
-        stardust={1000}
+        fuel={1000}
         onPurchase={mockOnPurchase}
         productionByBuilding={{}}
       />
@@ -50,7 +50,7 @@ describe('BuildingList', () => {
         buildings={mockBuildings}
         ownedCounts={{}}
         currentCosts={{ spaceMiner: 10, asteroidHarvester: 100 }}
-        stardust={1000}
+        fuel={1000}
         onPurchase={mockOnPurchase}
         productionByBuilding={{}}
       />
@@ -69,7 +69,7 @@ describe('BuildingList', () => {
         buildings={mockBuildings}
         ownedCounts={{ spaceMiner: 5 }}
         currentCosts={{ spaceMiner: 15, asteroidHarvester: 100 }}
-        stardust={50}
+        fuel={50}
         onPurchase={mockOnPurchase}
         productionByBuilding={{ spaceMiner: 0.5 }}
       />
@@ -86,7 +86,7 @@ describe('BuildingList', () => {
         buildings={mockBuildings}
         ownedCounts={{}}
         currentCosts={{ spaceMiner: 10, asteroidHarvester: 100 }}
-        stardust={50}
+        fuel={50}
         onPurchase={mockOnPurchase}
         productionByBuilding={{}}
       />
@@ -109,7 +109,7 @@ describe('BuildingList', () => {
         buildings={mockBuildings}
         ownedCounts={{}}
         currentCosts={{ spaceMiner: 10, asteroidHarvester: 100 }}
-        stardust={1000}
+        fuel={1000}
         onPurchase={mockOnPurchase}
         productionByBuilding={{}}
       />
@@ -131,7 +131,7 @@ describe('BuildingList', () => {
         buildings={[]}
         ownedCounts={{}}
         currentCosts={{}}
-        stardust={0}
+        fuel={0}
         onPurchase={mockOnPurchase}
         productionByBuilding={{}}
       />
@@ -147,7 +147,7 @@ describe('BuildingList', () => {
         buildings={mockBuildings}
         ownedCounts={{}}
         currentCosts={{ spaceMiner: 10, asteroidHarvester: 100 }}
-        stardust={1000}
+        fuel={1000}
         onPurchase={mockOnPurchase}
         productionByBuilding={{}}
       />
@@ -165,7 +165,7 @@ describe('BuildingList', () => {
         buildings={mockBuildings}
         ownedCounts={{ spaceMiner: 1 }}
         currentCosts={{ spaceMiner: 10, asteroidHarvester: 100 }}
-        stardust={1000}
+        fuel={1000}
         onPurchase={mockOnPurchase}
         productionByBuilding={{}}
       />

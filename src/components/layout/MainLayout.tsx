@@ -1,6 +1,6 @@
 import React from 'react';
 import { Header, HeaderProps } from './Header';
-import { Sidebar, SidebarTab } from './Sidebar';
+import { SidebarTab } from './Sidebar';
 import { Footer } from './Footer';
 
 export interface MainLayoutProps {
@@ -21,8 +21,8 @@ export interface MainLayoutProps {
  */
 export const MainLayout: React.FC<MainLayoutProps> = ({
   headerProps,
-  activeTab,
-  onTabChange,
+  activeTab: _activeTab,
+  onTabChange: _onTabChange,
   children,
   footerContent,
 }) => {

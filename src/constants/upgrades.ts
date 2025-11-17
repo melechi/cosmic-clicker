@@ -136,8 +136,8 @@ export const PRODUCTION_UPGRADES: ProductionUpgrade[] = [
 export const PRESTIGE_UPGRADES: PrestigeUpgrade[] = [
   {
     id: 'stardustAffinity',
-    name: 'Stardust Affinity',
-    description: 'Start each run with 100 stardust',
+    name: 'Fuel Affinity',
+    description: 'Start each run with 100 fuel',
     cost: 5,
     type: 'prestige',
     effect: 'startStardust',

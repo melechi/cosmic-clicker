@@ -108,7 +108,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   {
     id: 'dustCollector',
     name: 'Dust Collector',
-    description: 'Earn 1,000 stardust (lifetime)',
+    description: 'Earn 1,000 fuel (lifetime)',
     category: 'milestone',
     condition: 'totalFuelEarned',
     threshold: 1000,
@@ -117,7 +117,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   {
     id: 'stellarMiner',
     name: 'Stellar Miner',
-    description: 'Earn 1,000,000 stardust (lifetime)',
+    description: 'Earn 1,000,000 fuel (lifetime)',
     category: 'milestone',
     condition: 'totalFuelEarned',
     threshold: 1000000,
@@ -126,7 +126,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   {
     id: 'galacticTycoon',
     name: 'Galactic Tycoon',
-    description: 'Earn 1,000,000,000 stardust (lifetime)',
+    description: 'Earn 1,000,000,000 fuel (lifetime)',
     category: 'milestone',
     condition: 'totalFuelEarned',
     threshold: 1000000000,
@@ -135,7 +135,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   {
     id: 'universeCreator',
     name: 'Universe Creator',
-    description: 'Earn 1,000,000,000,000 stardust (lifetime)',
+    description: 'Earn 1,000,000,000,000 fuel (lifetime)',
     category: 'milestone',
     condition: 'totalFuelEarned',
     threshold: 1000000000000,

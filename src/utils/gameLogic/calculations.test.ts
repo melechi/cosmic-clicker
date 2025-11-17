@@ -457,9 +457,9 @@ describe('checkAchievementUnlocked', () => {
     expect(checkAchievementUnlocked('totalClicks', 100, 100)).toBe(true);
   });
 
-  it('should check totalStardustEarned condition', () => {
-    expect(checkAchievementUnlocked('totalStardustEarned', 1000000, 2000000)).toBe(true);
-    expect(checkAchievementUnlocked('totalStardustEarned', 1000000, 500000)).toBe(false);
+  it('should check totalFuelEarned condition', () => {
+    expect(checkAchievementUnlocked('totalFuelEarned', 1000000, 2000000)).toBe(true);
+    expect(checkAchievementUnlocked('totalFuelEarned', 1000000, 500000)).toBe(false);
   });
 
   it('should check buildingCount condition', () => {

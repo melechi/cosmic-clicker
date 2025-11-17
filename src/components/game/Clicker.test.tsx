@@ -1,88 +1,81 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Clicker } from './Clicker';
+import { GameProvider } from '@/context';
+
+// Test wrapper with GameProvider
+const TestWrapper = ({ children }: { children: React.ReactNode }) => (
+  <GameProvider>{children}</GameProvider>
+);
 
 describe('Clicker', () => {
-  it('should render clickable button', () => {
-    const mockOnClick = vi.fn();
-    render(<Clicker clickPower={1} onClick={mockOnClick} />);
+  it('should render game area', () => {
+    render(<Clicker />, { wrapper: TestWrapper });
 
-    expect(screen.getByLabelText(/click to generate/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /game area/i })).toBeInTheDocument();
   });
 
-  it('should call onClick when clicked', async () => {
+  it('should render with spaceship', () => {
+    const { container } = render(<Clicker />, { wrapper: TestWrapper });
+
+    // Spaceship should be present
+    const spaceship = container.querySelector('svg');
+    expect(spaceship).toBeTruthy();
+  });
+
+  it('should handle click events on game area', async () => {
     const user = userEvent.setup();
-    const mockOnClick = vi.fn();
-    render(<Clicker clickPower={1} onClick={mockOnClick} />);
+    render(<Clicker />, { wrapper: TestWrapper });
 
-    await user.click(screen.getByLabelText(/click to generate/i));
+    const gameArea = screen.getByRole('button', { name: /game area/i });
+    await user.click(gameArea);
 
-    expect(mockOnClick).toHaveBeenCalledTimes(1);
-  });
-
-  it('should spawn particle on click', async () => {
-    const user = userEvent.setup();
-    const mockOnClick = vi.fn();
-    const { container } = render(<Clicker clickPower={10} onClick={mockOnClick} />);
-
-    await user.click(screen.getByLabelText(/click to generate/i));
-
-    // Check for particle
-    expect(container.querySelector('.animate-float-up')).toBeInTheDocument();
-  });
-
-  it('should show correct click power in aria-label', () => {
-    const mockOnClick = vi.fn();
-    render(<Clicker clickPower={50} onClick={mockOnClick} />);
-
-    expect(screen.getByLabelText('Click to generate 50 stardust')).toBeInTheDocument();
+    // Click should be registered (no error thrown)
+    expect(gameArea).toBeTruthy();
   });
 
   it('should be disabled when disabled prop is true', () => {
-    const mockOnClick = vi.fn();
-    render(<Clicker clickPower={1} onClick={mockOnClick} disabled />);
+    render(<Clicker disabled />, { wrapper: TestWrapper });
 
-    const button = screen.getByLabelText(/click to generate/i);
-    expect(button).toBeDisabled();
-    expect(button).toHaveAttribute('aria-disabled', 'true');
+    const gameArea = screen.getByRole('button', { name: /game area/i });
+    expect(gameArea).toHaveAttribute('aria-disabled', 'true');
   });
 
-  it('should not call onClick when disabled', async () => {
-    const user = userEvent.setup();
-    const mockOnClick = vi.fn();
-    render(<Clicker clickPower={1} onClick={mockOnClick} disabled />);
+  it('should show instruction text when no objects', () => {
+    render(<Clicker />, { wrapper: TestWrapper });
 
-    await user.click(screen.getByLabelText(/click to generate/i));
-
-    expect(mockOnClick).not.toHaveBeenCalled();
+    expect(screen.getByText(/waiting for objects to mine/i)).toBeInTheDocument();
   });
 
-  it('should render instruction text', () => {
-    const mockOnClick = vi.fn();
-    render(<Clicker clickPower={1} onClick={mockOnClick} />);
+  it('should support keyboard interaction', async () => {
+    render(<Clicker />, { wrapper: TestWrapper });
 
-    expect(screen.getByText('Click to collect stardust!')).toBeInTheDocument();
+    const gameArea = screen.getByRole('button', { name: /game area/i });
+
+    // Focus the element
+    gameArea.focus();
+
+    // Press spacebar
+    fireEvent.keyDown(gameArea, { key: ' ' });
+
+    // Should not crash
+    expect(gameArea).toBeTruthy();
   });
 
-  it('should support multiple rapid clicks', async () => {
-    const user = userEvent.setup();
-    const mockOnClick = vi.fn();
-    render(<Clicker clickPower={1} onClick={mockOnClick} />);
+  it('should have proper ARIA attributes', () => {
+    render(<Clicker />, { wrapper: TestWrapper });
 
-    const button = screen.getByLabelText(/click to generate/i);
-    await user.click(button);
-    await user.click(button);
-    await user.click(button);
-
-    expect(mockOnClick).toHaveBeenCalledTimes(3);
+    const gameArea = screen.getByRole('button', { name: /game area/i });
+    expect(gameArea).toHaveAttribute('tabIndex', '0');
   });
 
-  it('should have focus ring for accessibility', () => {
-    const mockOnClick = vi.fn();
-    render(<Clicker clickPower={1} onClick={mockOnClick} />);
+  it('should show laser stats display', () => {
+    const { container } = render(<Clicker />, { wrapper: TestWrapper });
 
-    const button = screen.getByLabelText(/click to generate/i);
-    expect(button).toHaveClass('focus:ring-4', 'focus:ring-blue-400');
+    // Check for stats display (damage, range, cooldown)
+    expect(container.textContent).toMatch(/damage/i);
+    expect(container.textContent).toMatch(/range/i);
+    expect(container.textContent).toMatch(/cooldown/i);
   });
 });

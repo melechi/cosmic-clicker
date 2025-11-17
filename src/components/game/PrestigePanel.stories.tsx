@@ -19,7 +19,7 @@ type Story = StoryObj<typeof PrestigePanel>;
 
 export const CannotPrestige: Story = {
   args: {
-    totalStardustEarned: 500000,
+    totalFuelEarned: 500000,
     currentNebulaCrystals: 0,
     crystalsToGain: 0,
     canPrestige: false,
@@ -29,7 +29,7 @@ export const CannotPrestige: Story = {
 
 export const NearlyReady: Story = {
   args: {
-    totalStardustEarned: 950000,
+    totalFuelEarned: 950000,
     currentNebulaCrystals: 0,
     crystalsToGain: 0,
     canPrestige: false,
@@ -39,7 +39,7 @@ export const NearlyReady: Story = {
 
 export const ReadyToPrestige: Story = {
   args: {
-    totalStardustEarned: 2000000,
+    totalFuelEarned: 2000000,
     currentNebulaCrystals: 0,
     crystalsToGain: 1,
     canPrestige: true,
@@ -49,7 +49,7 @@ export const ReadyToPrestige: Story = {
 
 export const WithExistingCrystals: Story = {
   args: {
-    totalStardustEarned: 10000000,
+    totalFuelEarned: 10000000,
     currentNebulaCrystals: 10,
     crystalsToGain: 3,
     canPrestige: true,
@@ -59,7 +59,7 @@ export const WithExistingCrystals: Story = {
 
 export const HighPrestige: Story = {
   args: {
-    totalStardustEarned: 100000000,
+    totalFuelEarned: 100000000,
     currentNebulaCrystals: 50,
     crystalsToGain: 10,
     canPrestige: true,
@@ -69,7 +69,7 @@ export const HighPrestige: Story = {
 
 export const VeryHighPrestige: Story = {
   args: {
-    totalStardustEarned: 1000000000000,
+    totalFuelEarned: 1000000000000,
     currentNebulaCrystals: 999,
     crystalsToGain: 1000,
     canPrestige: true,

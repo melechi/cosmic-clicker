@@ -109,7 +109,7 @@ export const LargeNumbers: Story = {
       ...mockAchievement,
       name: 'Stardust Tycoon',
       description: 'Earn 1 billion total stardust',
-      condition: 'totalStardustEarned',
+      condition: 'totalFuelEarned',
       threshold: 1000000000,
       bonus: 0.5,
     },

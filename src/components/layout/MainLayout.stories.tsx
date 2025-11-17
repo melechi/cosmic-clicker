@@ -23,6 +23,8 @@ function MainLayoutWrapper() {
     <MainLayout
       headerProps={{
         fuel: 12345.67,
+        tankCapacity: 50000,
+        credits: 2500,
         productionPerSecond: 250,
         nebulaCrystals: 10,
         clickPower: 5,
@@ -60,6 +62,8 @@ export const EarlyGame: Story = {
       <MainLayout
         headerProps={{
           fuel: 45,
+          tankCapacity: 1000,
+          credits: 10,
           productionPerSecond: 0.5,
           nebulaCrystals: 0,
           clickPower: 1,
@@ -82,6 +86,8 @@ export const LateGame: Story = {
       <MainLayout
         headerProps={{
           fuel: 999999999999,
+          tankCapacity: 10000000,
+          credits: 999999,
           productionPerSecond: 50000000,
           nebulaCrystals: 100,
           clickPower: 100000,
@@ -111,6 +117,8 @@ export const WithoutFooter: Story = {
       <MainLayout
         headerProps={{
           fuel: 5000,
+          tankCapacity: 10000,
+          credits: 250,
           productionPerSecond: 50,
           nebulaCrystals: 2,
           clickPower: 3,

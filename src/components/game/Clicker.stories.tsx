@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
 import { Clicker } from './Clicker';
+import { GameProvider } from '@/context';
 
 const meta: Meta<typeof Clicker> = {
   title: 'Game/Clicker',
@@ -9,35 +9,26 @@ const meta: Meta<typeof Clicker> = {
     layout: 'centered',
   },
   tags: ['autodocs'],
-  args: {
-    onClick: fn(),
-  },
+  decorators: [
+    (Story) => (
+      <GameProvider>
+        <div style={{ width: '800px', height: '600px' }}>
+          <Story />
+        </div>
+      </GameProvider>
+    ),
+  ],
 };
 
 export default meta;
 type Story = StoryObj<typeof Clicker>;
 
 export const Default: Story = {
-  args: {
-    clickPower: 1,
-  },
-};
-
-export const HighClickPower: Story = {
-  args: {
-    clickPower: 100,
-  },
-};
-
-export const VeryHighClickPower: Story = {
-  args: {
-    clickPower: 10000,
-  },
+  args: {},
 };
 
 export const Disabled: Story = {
   args: {
-    clickPower: 1,
     disabled: true,
   },
 };

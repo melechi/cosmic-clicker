@@ -16,8 +16,8 @@ export interface Achievement {
   /** Achievement category */
   category: AchievementCategory;
   /** Condition type for unlock */
-  condition: 'totalClicks' | 'buildingCount' | 'totalStardustEarned' | 'totalPrestiges' | 'totalNebulaCrystals';
-  /** Value required to unlock (e.g., 100 clicks, 1000000 stardust) */
+  condition: 'totalClicks' | 'buildingCount' | 'totalFuelEarned' | 'totalPrestiges' | 'totalNebulaCrystals';
+  /** Value required to unlock (e.g., 100 clicks, 1000000 fuel) */
   threshold: number;
   /** For building-specific achievements, the building ID */
   buildingId?: string;

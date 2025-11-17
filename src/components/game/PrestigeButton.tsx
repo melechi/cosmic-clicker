@@ -21,7 +21,7 @@ export const PrestigeButton: React.FC<PrestigeButtonProps> = ({
 }) => {
   const tooltipContent = canPrestige
     ? `Reset your progress to gain ${formatNumber(crystalsToGain)} Nebula Crystals`
-    : 'You need at least 1M total stardust to prestige';
+    : 'You need at least 1M total fuel to prestige';
 
   return (
     <Tooltip content={tooltipContent}>

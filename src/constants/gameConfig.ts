@@ -23,10 +23,10 @@ export const GAME_CONFIG = {
   /** LocalStorage key for settings */
   SETTINGS_KEY: 'cosmicClicker_settings',
 
-  /** Minimum stardust required for first prestige */
+  /** Minimum fuel required for first prestige */
   MIN_PRESTIGE_STARDUST: 1000000,
 
-  /** Divisor for Nebula Crystal calculation (sqrt(totalStardust / this)) */
+  /** Divisor for Nebula Crystal calculation (sqrt(totalFuel / this)) */
   PRESTIGE_DIVISOR: 1000000,
 
   /** Production bonus per Nebula Crystal (1% = 0.01) */
@@ -104,6 +104,24 @@ export const GAME_CONFIG = {
     /** Default screen reader announcements */
     DEFAULT_SCREEN_READER: true,
   },
+
+  /** Phase 1: Fuel consumption rates by speed setting (fuel per second) */
+  FUEL_CONSUMPTION_RATES: {
+    stop: 0,
+    slow: 0.5,
+    normal: 1,
+    fast: 2,
+    boost: 5,
+  },
+
+  /** Phase 1: Base object spawn rate (objects per second) */
+  OBJECT_SPAWN_RATE: 1.0,
+
+  /** Phase 1: Object fall speed (pixels per second) */
+  OBJECT_FALL_SPEED: 100,
+
+  /** Phase 1: Ship movement speed (pixels per second at normal speed) */
+  SHIP_BASE_SPEED: 50,
 } as const;
 
 /**
