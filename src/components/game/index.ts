@@ -56,3 +56,16 @@ export { ConverterControls } from './ConverterControls';
 
 export { ShipControls } from './ShipControls';
 export type { ShipControlsProps } from './ShipControls';
+
+export { ModuleUpgradeItem } from './ModuleUpgradeItem';
+export type { ModuleUpgradeItemProps } from './ModuleUpgradeItem';
+
+export { ModuleUpgradeTree } from './ModuleUpgradeTree';
+export type { ModuleUpgradeTreeProps } from './ModuleUpgradeTree';
+
+export { ModuleUpgradesPanel } from './ModuleUpgradesPanel';
+export type { ModuleUpgradesPanelProps } from './ModuleUpgradesPanel';
+
+export { Bot } from './Bot';
+
+export { BotManager } from './BotManager';

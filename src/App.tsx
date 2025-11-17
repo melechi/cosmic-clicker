@@ -9,7 +9,6 @@ import type { SidebarTab } from '@/components/layout';
 import {
   Clicker,
   BuildingList,
-  UpgradesPanel,
   AchievementsPanel,
   Statistics,
   PrestigePanel,
@@ -19,6 +18,8 @@ import {
   CargoHoldPanel,
   ObjectSpawner,
   ShipControls,
+  ModuleUpgradesPanel,
+  BotManager,
 } from '@/components/game';
 import { BackgroundParticles } from '@/components/effects';
 import { Modal } from '@/components/ui/Modal';
@@ -28,10 +29,6 @@ import { formatNumber } from '@/utils/formatting/numberFormat';
 import {
   ACHIEVEMENTS,
   BUILDINGS,
-  CLICK_UPGRADES,
-  PRODUCTION_UPGRADES,
-  AUTO_CLICK_UPGRADES,
-  PRESTIGE_UPGRADES,
   GAME_CONFIG,
   getFuelRequiredForZone,
 } from '@/constants';
@@ -308,17 +305,7 @@ function GameContent() {
           />
         );
       case 'upgrades':
-        return (
-          <UpgradesPanel
-            clickUpgrades={CLICK_UPGRADES}
-            productionUpgrades={PRODUCTION_UPGRADES}
-            autoClickUpgrades={AUTO_CLICK_UPGRADES}
-            prestigeUpgrades={PRESTIGE_UPGRADES}
-            purchasedUpgrades={new Set(state.upgrades)}
-            fuel={state.fuel}
-            onPurchase={(upgradeId: string) => dispatch(actions.buyUpgrade(upgradeId))}
-          />
-        );
+        return <ModuleUpgradesPanel />;
       case 'achievements':
         return (
           <AchievementsPanel
@@ -405,6 +392,11 @@ function GameContent() {
                     enabled={true}
                   />
                 </div>
+
+                {/* BotManager - Renders and manages mining bots */}
+                <div className="absolute inset-0 pointer-events-none">
+                  <BotManager enabled={true} />
+                </div>
               </div>
             </div>
           </div>
@@ -445,7 +437,7 @@ function GameContent() {
               onClick={() => setActiveTab(activeTab === 'upgrades' ? 'buildings' : 'upgrades')}
               className={`flex-1 px-3 py-3 text-xs sm:text-sm font-semibold text-white hover:bg-gray-800 rounded transition-colors ${activeTab === 'upgrades' ? 'bg-gray-800' : ''}`}
             >
-              ⚡ Upgrades
+              🔧 Modules
             </button>
             <button
               onClick={() => setActiveTab(activeTab === 'achievements' ? 'buildings' : 'achievements')}

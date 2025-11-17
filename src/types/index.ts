@@ -40,6 +40,8 @@ export type {
   AnyGameObject,
   ObjectSpawnWeight,
   ObjectSpawnConfig,
+  Bot,
+  BotState,
 } from './objects';
 
 // Phase 1: Ship modules

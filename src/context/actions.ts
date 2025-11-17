@@ -1,4 +1,4 @@
-import type { GameState, GameObject, Position, ResourceType, ShipSpeed, ModuleType } from '@/types';
+import type { GameState, GameObject, Position, ResourceType, ShipSpeed, ModuleType, Bot } from '@/types';
 
 /**
  * Game action types
@@ -31,11 +31,21 @@ export type GameAction =
   | { type: 'COLLECT_RESOURCE'; payload: { resourceType: ResourceType; amount: number } }
   | { type: 'CONVERT_RESOURCES'; payload: { resourceType: ResourceType; amount: number } }
   | { type: 'SELL_RESOURCES'; payload: { resourceType: ResourceType; amount: number } }
+  // Phase 2: Cargo management
+  | { type: 'SET_AUTO_SELL'; payload: { enabled: boolean } }
+  | { type: 'SET_RESOURCE_PRIORITY'; payload: { priority: ResourceType[] } }
+  | { type: 'DISMISS_CARGO_WARNING' }
   // Phase 1: Ship controls
   | { type: 'SET_SHIP_SPEED'; payload: { speed: ShipSpeed } }
   | { type: 'CONSUME_FUEL'; payload: { amount: number } }
   // Phase 1: Module upgrades
-  | { type: 'UPGRADE_MODULE'; payload: { moduleType: ModuleType; upgradeId: string; cost: number } };
+  | { type: 'UPGRADE_MODULE'; payload: { moduleType: ModuleType; upgradeId: string; cost: number } }
+  // Phase 2: Purchase module upgrade
+  | { type: 'PURCHASE_MODULE_UPGRADE'; payload: { upgradeId: string } }
+  // Phase 2: Bot system
+  | { type: 'UPDATE_BOTS'; payload: { deltaTime: number } }
+  | { type: 'SPAWN_BOT'; payload: { bot: Bot } }
+  | { type: 'DESPAWN_BOT'; payload: { botId: string } };
 
 /**
  * Action creators for type-safe dispatch
@@ -150,6 +160,21 @@ export const actions = {
     payload: { resourceType, amount },
   }),
 
+  // Phase 2: Cargo management
+  setAutoSell: (enabled: boolean): GameAction => ({
+    type: 'SET_AUTO_SELL',
+    payload: { enabled },
+  }),
+
+  setResourcePriority: (priority: ResourceType[]): GameAction => ({
+    type: 'SET_RESOURCE_PRIORITY',
+    payload: { priority },
+  }),
+
+  dismissCargoWarning: (): GameAction => ({
+    type: 'DISMISS_CARGO_WARNING',
+  }),
+
   // Phase 1: Ship controls
   setShipSpeed: (speed: ShipSpeed): GameAction => ({
     type: 'SET_SHIP_SPEED',
@@ -165,5 +190,27 @@ export const actions = {
   upgradeModule: (moduleType: ModuleType, upgradeId: string, cost: number): GameAction => ({
     type: 'UPGRADE_MODULE',
     payload: { moduleType, upgradeId, cost },
+  }),
+
+  // Phase 2: Purchase module upgrade (with full upgrade object)
+  purchaseModuleUpgrade: (upgradeId: string): GameAction => ({
+    type: 'PURCHASE_MODULE_UPGRADE',
+    payload: { upgradeId },
+  }),
+
+  // Phase 2: Bot system
+  updateBots: (deltaTime: number): GameAction => ({
+    type: 'UPDATE_BOTS',
+    payload: { deltaTime },
+  }),
+
+  spawnBot: (bot: Bot): GameAction => ({
+    type: 'SPAWN_BOT',
+    payload: { bot },
+  }),
+
+  despawnBot: (botId: string): GameAction => ({
+    type: 'DESPAWN_BOT',
+    payload: { botId },
   }),
 };

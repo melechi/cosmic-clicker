@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useGame } from '@/context';
 import { useToast } from '@/hooks/useToast';
 import { actions } from '@/context/actions';
@@ -6,23 +6,44 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { ResourceDisplay } from './ResourceDisplay';
+import { ResourcePriorityList } from './ResourcePriorityList';
 import { formatNumber } from '@/utils/formatting/numberFormat';
 import { calculateTotalCargo } from '@/utils/gameLogic/resourceConversion';
+import { calculateCargoUtilization } from '@/utils/gameLogic/cargoManagement';
 import { RESOURCES } from '@/constants/resources';
+import { GAME_CONFIG } from '@/constants';
 import type { ResourceType } from '@/types';
 
 /**
  * Cargo Hold Panel - Display all collected resources with convert/sell actions
+ * Phase 2 enhancements: Auto-sell toggle, resource priority, better warnings
  */
 export const CargoHoldPanel: React.FC = () => {
   const { state, dispatch } = useGame();
   const toast = useToast();
   const [showDetails, setShowDetails] = useState(false);
+  const [showPrioritySettings, setShowPrioritySettings] = useState(false);
+  const [warningDismissed, setWarningDismissed] = useState(false);
 
   // Calculate cargo usage
   const currentCargo = useMemo(() => calculateTotalCargo(state.resources), [state.resources]);
   const maxCargo = state.modules.cargoHold.totalCapacity;
-  const cargoPercent = (currentCargo / maxCargo) * 100;
+  const cargoPercent = calculateCargoUtilization(currentCargo, maxCargo);
+
+  // Warning thresholds
+  const isCargoWarning = cargoPercent >= GAME_CONFIG.CARGO_WARNING_THRESHOLD;
+  const isCargoDanger = cargoPercent >= GAME_CONFIG.CARGO_DANGER_THRESHOLD;
+  const isCargoFull = currentCargo >= maxCargo;
+
+  // Show warning banner (dismissible)
+  const showWarningBanner = (isCargoWarning || isCargoDanger || isCargoFull) && !warningDismissed;
+
+  // Reset warning dismissal when cargo drops below threshold
+  useEffect(() => {
+    if (!isCargoWarning) {
+      setWarningDismissed(false);
+    }
+  }, [isCargoWarning]);
 
   // Get resources with amounts > 0, grouped by tier
   const resourcesByTier = useMemo(() => {
@@ -48,7 +69,19 @@ export const CargoHoldPanel: React.FC = () => {
 
   // Check if any resources exist
   const hasResources = currentCargo > 0;
-  const isCargoFull = currentCargo >= maxCargo;
+
+  // Handler for toggling auto-sell
+  const handleToggleAutoSell = () => {
+    const newValue = !state.modules.cargoHold.autoSell;
+    dispatch(actions.setAutoSell(newValue));
+    toast.success(newValue ? 'Auto-sell enabled' : 'Auto-sell disabled');
+  };
+
+  // Handler for updating resource priority
+  const handlePriorityChange = (newPriority: ResourceType[]) => {
+    dispatch(actions.setResourcePriority(newPriority));
+    toast.success('Resource priority updated');
+  };
 
   // Handler for converting a single resource
   const handleConvert = (resourceType: ResourceType, amount: number) => {
@@ -176,7 +209,7 @@ export const CargoHoldPanel: React.FC = () => {
             max={maxCargo}
             label="Cargo Capacity"
             showPercentage={false}
-            variant={isCargoFull ? 'danger' : cargoPercent > 80 ? 'warning' : 'primary'}
+            variant={isCargoFull ? 'danger' : isCargoDanger ? 'danger' : isCargoWarning ? 'warning' : 'primary'}
           />
           <div className="flex justify-between text-xs text-gray-400 mt-1">
             <span>
@@ -184,9 +217,84 @@ export const CargoHoldPanel: React.FC = () => {
             </span>
             <span>{cargoPercent.toFixed(0)}% Full</span>
           </div>
-          {isCargoFull && (
-            <div className="text-xs text-red-400 mt-2 font-semibold">
-              Cargo is full! Convert or sell resources to make space.
+        </div>
+
+        {/* Warning banners */}
+        {showWarningBanner && (
+          <div
+            className={`p-3 rounded border ${
+              isCargoFull
+                ? 'bg-red-900/30 border-red-500 text-red-200'
+                : isCargoDanger
+                ? 'bg-red-900/20 border-red-600 text-red-300 animate-pulse'
+                : 'bg-yellow-900/30 border-yellow-600 text-yellow-200'
+            }`}
+          >
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex-1">
+                <div className="font-semibold text-sm mb-1">
+                  {isCargoFull ? '🚨 Cargo Full!' : isCargoDanger ? '⚠️ Cargo Nearly Full!' : '⚠️ Cargo Warning'}
+                </div>
+                <p className="text-xs">
+                  {isCargoFull
+                    ? 'Cannot collect more resources. Convert or sell resources to make space.'
+                    : isCargoDanger
+                    ? 'Cargo is at 95% capacity. Consider converting or selling resources.'
+                    : 'Cargo is at 80% capacity. You may want to free up space soon.'}
+                </p>
+                {isCargoFull && !state.modules.cargoHold.autoSell && (
+                  <p className="text-xs mt-2">
+                    💡 <strong>Tip:</strong> Enable auto-sell below to automatically sell low-priority
+                    resources when cargo is full.
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={() => setWarningDismissed(true)}
+                className="text-xs opacity-70 hover:opacity-100 transition-opacity"
+                aria-label="Dismiss warning"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Auto-sell settings */}
+        <div className="border border-gray-700 rounded p-3 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <div className="text-sm font-semibold text-gray-200 mb-1">Auto-Sell When Full</div>
+              <div className="text-xs text-gray-400">
+                Automatically sells lowest priority resources when cargo is full
+              </div>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer ml-3">
+              <input
+                type="checkbox"
+                checked={state.modules.cargoHold.autoSell}
+                onChange={handleToggleAutoSell}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+
+          <div>
+            <button
+              onClick={() => setShowPrioritySettings(!showPrioritySettings)}
+              className="text-xs text-blue-400 hover:text-blue-300 underline"
+            >
+              {showPrioritySettings ? 'Hide' : 'Configure'} Resource Priority
+            </button>
+          </div>
+
+          {showPrioritySettings && (
+            <div className="pt-2 border-t border-gray-700">
+              <ResourcePriorityList
+                priority={state.modules.cargoHold.resourcePriority}
+                onPriorityChange={handlePriorityChange}
+              />
             </div>
           )}
         </div>

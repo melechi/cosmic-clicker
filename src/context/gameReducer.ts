@@ -30,6 +30,10 @@ import {
   checkLaserMultipleHits,
 } from '@/utils/gameLogic/objectPhysics';
 import {
+  updateBotState,
+  getTargetedObjectIds,
+} from '@/utils/gameLogic/botAI';
+import {
   convertResourceToFuel,
   calculateResourceValue,
   calculateFuelConsumption,
@@ -37,6 +41,11 @@ import {
   calculateMaxCargoAddition,
   SPEED_FUEL_MULTIPLIERS,
 } from '@/utils/gameLogic/resourceConversion';
+import {
+  getUpgradeById as getModuleUpgradeById,
+  canPurchaseUpgrade as canPurchaseModuleUpgrade,
+} from '@/constants/modules';
+import { applyUpgradeStatChanges } from '@/utils/gameLogic/moduleUpgrades';
 
 /**
  * Main game reducer function
@@ -680,7 +689,43 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       );
 
       if (maxAddition <= 0) {
-        return state; // Cargo full
+        // Cargo is full - check if auto-sell is enabled
+        if (state.modules.cargoHold.autoSell) {
+          // Import auto-sell functions
+          const {
+            autoSellResources,
+            calculateSpaceToFree,
+          } = require('@/utils/gameLogic/cargoManagement');
+
+          const spaceNeeded = calculateSpaceToFree(
+            totalCargo,
+            state.modules.cargoHold.totalCapacity,
+            amount
+          );
+
+          if (spaceNeeded > 0) {
+            const { updatedResources, soldResources } = autoSellResources(
+              state.resources,
+              state.modules.cargoHold.resourcePriority,
+              spaceNeeded
+            );
+
+            // Calculate total credits gained
+            const totalCredits = soldResources.reduce((sum, sale) => sum + sale.credits, 0);
+
+            // Add the new resource after making space
+            updatedResources[resourceType] = (updatedResources[resourceType] || 0) + amount;
+
+            return {
+              ...state,
+              resources: updatedResources,
+              credits: state.credits + totalCredits,
+            };
+          }
+        }
+
+        // If auto-sell is disabled or couldn't make space, return unchanged
+        return state;
       }
 
       return {
@@ -734,6 +779,51 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           [resourceType]: currentAmount - amount,
         },
         credits: state.credits + creditsGained,
+      };
+    }
+
+    // ========================================
+    // Phase 2: Cargo Management Actions
+    // ========================================
+
+    case 'SET_AUTO_SELL': {
+      const { enabled } = action.payload;
+      return {
+        ...state,
+        modules: {
+          ...state.modules,
+          cargoHold: {
+            ...state.modules.cargoHold,
+            autoSell: enabled,
+          },
+        },
+      };
+    }
+
+    case 'SET_RESOURCE_PRIORITY': {
+      const { priority } = action.payload;
+      return {
+        ...state,
+        modules: {
+          ...state.modules,
+          cargoHold: {
+            ...state.modules.cargoHold,
+            resourcePriority: priority,
+          },
+        },
+      };
+    }
+
+    case 'DISMISS_CARGO_WARNING': {
+      return {
+        ...state,
+        modules: {
+          ...state.modules,
+          cargoHold: {
+            ...state.modules.cargoHold,
+            cargoFullWarningShown: true,
+          },
+        },
       };
     }
 
@@ -817,6 +907,121 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           ...state.statistics,
           upgradesPurchased: state.statistics.upgradesPurchased + 1,
         },
+      };
+    }
+
+    // ========================================
+    // Phase 2: Module Upgrade Purchase
+    // ========================================
+
+    case 'PURCHASE_MODULE_UPGRADE': {
+      const { upgradeId } = action.payload;
+
+      // Get upgrade from constants (module upgrades)
+      const upgrade = getModuleUpgradeById(upgradeId);
+      if (!upgrade) {
+        console.error(`Upgrade ${upgradeId} not found`);
+        return state;
+      }
+
+      const { moduleType } = upgrade;
+      const module = state.modules[moduleType];
+
+      // Validate purchase
+      if (!canPurchaseModuleUpgrade(upgradeId, module.purchasedUpgrades, state.credits)) {
+        return state;
+      }
+
+      // Add upgrade to purchased list
+      const updatedPurchasedUpgrades = [...module.purchasedUpgrades, upgradeId];
+
+      // Apply stat changes from upgrade
+      const updatedModule = applyUpgradeStatChanges(
+        {
+          ...module,
+          purchasedUpgrades: updatedPurchasedUpgrades,
+        },
+        upgrade as any
+      );
+
+      return {
+        ...state,
+        credits: state.credits - upgrade.cost,
+        modules: {
+          ...state.modules,
+          [moduleType]: updatedModule,
+        },
+        statistics: {
+          ...state.statistics,
+          upgradesPurchased: state.statistics.upgradesPurchased + 1,
+        },
+      };
+    }
+
+    // ========================================
+    // Phase 2: Bot System Actions
+    // ========================================
+
+    case 'UPDATE_BOTS': {
+      const { deltaTime } = action.payload;
+      const { botBay } = state.modules;
+
+      // Get all currently targeted object IDs
+      const targetedIds = getTargetedObjectIds(state.bots);
+
+      // Update each bot's state
+      const updatedBots = state.bots.map((bot) =>
+        updateBotState(bot, state.objects, targetedIds, botBay, deltaTime)
+      );
+
+      // Collect resources from depositing bots
+      let resourcesCollected = 0;
+      for (const bot of updatedBots) {
+        if (bot.state === 'depositing') {
+          resourcesCollected += bot.cargoAmount;
+        }
+      }
+
+      // Calculate total cargo space
+      const currentCargo = calculateTotalCargo(state.resources);
+      const maxCargo = state.modules.cargoHold.totalCapacity;
+      const maxCanAdd = calculateMaxCargoAddition(currentCargo, maxCargo, resourcesCollected);
+
+      // Add resources to random resource type (simplified for now)
+      // In a real implementation, bots would track which resource they collected
+      const newState: GameState = {
+        ...state,
+        bots: updatedBots,
+      };
+
+      if (maxCanAdd > 0 && resourcesCollected > 0) {
+        // For now, add to stone as a placeholder
+        // TODO: Track actual resource types collected by bots
+        return {
+          ...newState,
+          resources: {
+            ...newState.resources,
+            stone: (newState.resources.stone || 0) + Math.min(resourcesCollected, maxCanAdd),
+          },
+        };
+      }
+
+      return newState;
+    }
+
+    case 'SPAWN_BOT': {
+      const { bot } = action.payload;
+      return {
+        ...state,
+        bots: [...state.bots, bot],
+      };
+    }
+
+    case 'DESPAWN_BOT': {
+      const { botId } = action.payload;
+      return {
+        ...state,
+        bots: state.bots.filter((bot) => bot.id !== botId),
       };
     }
 

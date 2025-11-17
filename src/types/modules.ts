@@ -3,6 +3,8 @@
  * Includes all 7 core modules and their upgrade systems
  */
 
+import type { ResourceType } from './resources';
+
 /**
  * All ship module types
  */
@@ -112,6 +114,10 @@ export interface CargoHoldModule extends BaseModule {
   priceScanner: boolean;
   /** Whether auto-sells specific resources when cargo full */
   autoSell: boolean;
+  /** Resource priority order for auto-sell (highest priority first) */
+  resourcePriority: ResourceType[];
+  /** Whether cargo full warning has been shown this session */
+  cargoFullWarningShown?: boolean;
 }
 
 /**

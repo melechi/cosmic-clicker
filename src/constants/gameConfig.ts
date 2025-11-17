@@ -1,6 +1,9 @@
 /**
  * Core game configuration constants
  */
+
+import type { ResourceType } from '@/types';
+
 export const GAME_CONFIG = {
   /** Game version for save compatibility */
   VERSION: '1.0.0',
@@ -122,7 +125,33 @@ export const GAME_CONFIG = {
 
   /** Phase 1: Ship movement speed (pixels per second at normal speed) */
   SHIP_BASE_SPEED: 50,
+
+  /** Phase 2: Cargo management thresholds */
+  CARGO_WARNING_THRESHOLD: 80, // Show warning at 80% full
+  CARGO_DANGER_THRESHOLD: 95, // Show danger warning at 95% full
+
+  /** Phase 2: Bot system configuration */
+  BOT_MOVE_SPEED: 120, // Bot movement speed (pixels per second)
+  BOT_REACH_DISTANCE: 15, // Distance to consider bot reached target (pixels)
+  SHIP_POSITION: { x: 400, y: 300 }, // Ship position for bot return (center of game area)
 } as const;
+
+/**
+ * Default resource priority for auto-sell
+ * Higher priority resources (earlier in list) are kept, lower priority sold first
+ * Ordered by rarity/value: Tier 4 > Tier 3 > Tier 2 > Tier 1
+ */
+export const DEFAULT_RESOURCE_PRIORITY: ResourceType[] = [
+  'darkMatter', // Tier 4 - Legendary (keep at all costs)
+  'iridium', // Tier 4 - Very Rare
+  'platinum', // Tier 4 - Very Rare
+  'gold', // Tier 3 - Rare
+  'titanium', // Tier 3 - Rare
+  'iron', // Tier 2 - Uncommon
+  'ice', // Tier 2 - Uncommon
+  'carbon', // Tier 1 - Common
+  'stone', // Tier 1 - Common (sell first)
+];
 
 /**
  * UI-related constants

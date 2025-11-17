@@ -1,5 +1,5 @@
 import type { ResourceInventory } from './resources';
-import type { GameObject } from './objects';
+import type { GameObject, Bot } from './objects';
 import type { ShipModules, ShipSpeed } from './modules';
 
 /**
@@ -39,6 +39,7 @@ export interface GameState {
 
   // Game Objects (Phase 1)
   objects: GameObject[]; // Active objects in current zone
+  bots: Bot[]; // Active mining bots
 
   // Progression
   achievements: string[];
@@ -143,6 +144,18 @@ export const initialGameState: GameState = {
       quickSell: false,
       priceScanner: false,
       autoSell: false,
+      resourcePriority: [
+        'darkMatter',
+        'iridium',
+        'platinum',
+        'gold',
+        'titanium',
+        'iron',
+        'ice',
+        'carbon',
+        'stone',
+      ],
+      cargoFullWarningShown: false,
     },
     engine: {
       type: 'engine',
@@ -190,6 +203,7 @@ export const initialGameState: GameState = {
 
   // Game Objects
   objects: [],
+  bots: [],
 
   // Progression
   achievements: [],

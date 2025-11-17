@@ -12,7 +12,7 @@ export {
   getUpgradesByType,
 } from './upgrades';
 export { ACHIEVEMENTS, getAchievementById, getAchievementsByCategory } from './achievements';
-export { GAME_CONFIG, UI_CONFIG } from './gameConfig';
+export { GAME_CONFIG, UI_CONFIG, DEFAULT_RESOURCE_PRIORITY } from './gameConfig';
 export { ZONES, getZoneConfig, getFuelRequiredForZone, canWarpToNextZone } from './zones';
 
 // Phase 1: New resource-based constants

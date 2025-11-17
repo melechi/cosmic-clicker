@@ -204,3 +204,36 @@ export interface ObjectSpawnConfig {
   /** Spawn rate multiplier based on ship speed */
   speedMultiplier: boolean;
 }
+
+/**
+ * Bot state for autonomous mining
+ */
+export type BotState =
+  | 'idle' // Bot has no target, waiting for assignment
+  | 'moving_to_target' // Bot is flying toward a game object
+  | 'mining' // Bot is extracting resources from object
+  | 'returning' // Bot is returning to ship with cargo
+  | 'depositing'; // Bot is depositing resources at ship
+
+/**
+ * Mining bot interface
+ * Bots autonomously fly to objects and mine resources
+ */
+export interface Bot {
+  /** Unique bot identifier */
+  id: string;
+  /** Current position in game world */
+  position: Position;
+  /** Current velocity (for smooth movement) */
+  velocity: Velocity;
+  /** Current bot state */
+  state: BotState;
+  /** Target object ID (null if no target) */
+  targetObjectId: string | null;
+  /** Resources currently carried by bot */
+  cargoAmount: number;
+  /** Mining progress (0-1, progress toward extracting 1 resource) */
+  miningProgress: number;
+  /** Timestamp when bot was created */
+  createdAt: number;
+}
