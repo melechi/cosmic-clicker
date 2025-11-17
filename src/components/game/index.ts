@@ -36,3 +36,9 @@ export type { PrestigeButtonProps } from './PrestigeButton';
 
 export { Settings } from './Settings';
 export type { SettingsProps } from './Settings';
+
+export { ZoneProgressBar } from './ZoneProgressBar';
+export type { ZoneProgressBarProps } from './ZoneProgressBar';
+
+export { DebugPanel } from './DebugPanel';
+export type { DebugPanelProps } from './DebugPanel';

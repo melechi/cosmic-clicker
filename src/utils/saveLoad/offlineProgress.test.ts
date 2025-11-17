@@ -90,7 +90,7 @@ describe('getOfflineProgressInfo', () => {
 
     const result = getOfflineProgressInfo(lastSave, now, productionPerSecond);
 
-    expect(result.stardustEarned).toBe(18000);
+    expect(result.fuelEarned).toBe(18000);
     expect(result.timeAway).toBeCloseTo(3600, 0);
     expect(result.timeAwayDisplay).toContain('hour');
     expect(result.wasCapped).toBe(false);
@@ -225,7 +225,7 @@ describe('offline progress edge cases', () => {
     const result = getOfflineProgressInfo(exactMaxTime, now, productionPerSecond);
 
     expect(result.wasCapped).toBe(false);
-    expect(result.stardustEarned).toBeGreaterThan(0);
+    expect(result.fuelEarned).toBeGreaterThan(0);
   });
 
   it('should handle fractional production rates', () => {

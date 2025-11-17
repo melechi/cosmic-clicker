@@ -34,4 +34,14 @@
   animation: floatUp 1s ease-out forwards;
 }
 
+/* Float animation for mining bots */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
 /* Additional game styles can be added here */

@@ -3,7 +3,7 @@ import { formatNumber } from '@/utils/formatting/numberFormat';
 import { Tooltip } from '@/components/ui/Tooltip';
 
 export interface HeaderProps {
-  stardust: number;
+  fuel: number;
   productionPerSecond: number;
   nebulaCrystals: number;
   clickPower: number;
@@ -13,7 +13,7 @@ export interface HeaderProps {
  * Header component displaying game resources and stats
  */
 export const Header: React.FC<HeaderProps> = ({
-  stardust,
+  fuel,
   productionPerSecond,
   nebulaCrystals,
   clickPower,
@@ -29,21 +29,21 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Resource Display */}
         <div className="flex flex-wrap items-center gap-6">
-          {/* Stardust */}
-          <Tooltip content={`Total stardust: ${stardust.toFixed(1)}`}>
+          {/* Fuel */}
+          <Tooltip content={`Total fuel: ${fuel.toFixed(1)}`}>
             <div className="flex flex-col items-end">
-              <div className="text-xs text-gray-400 uppercase tracking-wide">Stardust</div>
+              <div className="text-xs text-gray-400 uppercase tracking-wide">⛽ Fuel</div>
               <div
                 className="text-2xl font-bold text-blue-400"
-                aria-label={`Stardust: ${formatNumber(stardust)}`}
+                aria-label={`Fuel: ${formatNumber(fuel)}`}
               >
-                {formatNumber(stardust)}
+                {formatNumber(fuel)}
               </div>
             </div>
           </Tooltip>
 
           {/* Production Rate */}
-          <Tooltip content={`You generate ${productionPerSecond.toFixed(2)} stardust every second`}>
+          <Tooltip content={`You generate ${productionPerSecond.toFixed(2)} fuel every second`}>
             <div className="flex flex-col items-end">
               <div className="text-xs text-gray-400 uppercase tracking-wide">Per Second</div>
               <div
@@ -56,7 +56,7 @@ export const Header: React.FC<HeaderProps> = ({
           </Tooltip>
 
           {/* Click Power */}
-          <Tooltip content="Stardust gained per click">
+          <Tooltip content="Fuel gained per click">
             <div className="flex flex-col items-end">
               <div className="text-xs text-gray-400 uppercase tracking-wide">Per Click</div>
               <div

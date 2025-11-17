@@ -31,7 +31,7 @@ export const Default: Story = {
       galacticNexus: 1400000,
       universeEngine: 20000000,
     },
-    stardust: 0,
+    fuel: 0,
     productionByBuilding: {},
   },
 };
@@ -52,7 +52,7 @@ export const EarlyGame: Story = {
       galacticNexus: 1400000,
       universeEngine: 20000000,
     },
-    stardust: 50,
+    fuel: 50,
     productionByBuilding: {
       spaceMiner: 0.3,
       asteroidHarvester: 0,
@@ -79,7 +79,7 @@ export const MidGame: Story = {
       galacticNexus: 1400000,
       universeEngine: 20000000,
     },
-    stardust: 50000,
+    fuel: 50000,
     productionByBuilding: {
       spaceMiner: 2.5,
       asteroidHarvester: 15,
@@ -111,7 +111,7 @@ export const LateGame: Story = {
       galacticNexus: 15000000,
       universeEngine: 200000000,
     },
-    stardust: 100000000,
+    fuel: 100000000,
     productionByBuilding: {
       spaceMiner: 10,
       asteroidHarvester: 85,
@@ -129,7 +129,7 @@ export const EmptyList: Story = {
     buildings: [],
     ownedCounts: {},
     currentCosts: {},
-    stardust: 0,
+    fuel: 0,
     productionByBuilding: {},
   },
 };

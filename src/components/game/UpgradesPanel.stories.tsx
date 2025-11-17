@@ -25,7 +25,7 @@ export const Default: Story = {
     autoClickUpgrades: AUTO_CLICK_UPGRADES,
     prestigeUpgrades: PRESTIGE_UPGRADES,
     purchasedUpgrades: new Set(),
-    stardust: 0,
+    fuel: 0,
   },
 };
 
@@ -36,7 +36,7 @@ export const WithSomeStardust: Story = {
     autoClickUpgrades: AUTO_CLICK_UPGRADES,
     prestigeUpgrades: PRESTIGE_UPGRADES,
     purchasedUpgrades: new Set(),
-    stardust: 5000,
+    fuel: 5000,
   },
 };
 
@@ -47,7 +47,7 @@ export const SomePurchased: Story = {
     autoClickUpgrades: AUTO_CLICK_UPGRADES,
     prestigeUpgrades: PRESTIGE_UPGRADES,
     purchasedUpgrades: new Set(['improvedCollectors', 'enhancedCollectors', 'basicAutoClicker']),
-    stardust: 10000,
+    fuel: 10000,
   },
 };
 
@@ -65,7 +65,7 @@ export const ManyPurchased: Story = {
       'improvedAutoClicker',
       'efficientProduction',
     ]),
-    stardust: 100000,
+    fuel: 100000,
   },
 };
 
@@ -81,6 +81,6 @@ export const AllPurchased: Story = {
       ...AUTO_CLICK_UPGRADES.map((u) => u.id),
       ...PRESTIGE_UPGRADES.map((u) => u.id),
     ]),
-    stardust: 999999999,
+    fuel: 999999999,
   },
 };

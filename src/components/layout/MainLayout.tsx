@@ -4,7 +4,7 @@ import { Sidebar, SidebarTab } from './Sidebar';
 import { Footer } from './Footer';
 
 export interface MainLayoutProps {
-  /** Header props (stardust, production, etc.) */
+  /** Header props (fuel, production, etc.) */
   headerProps: HeaderProps;
   /** Active sidebar tab */
   activeTab: SidebarTab;
@@ -31,20 +31,15 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
       {/* Header */}
       <Header {...headerProps} />
 
-      {/* Main Content Area */}
+      {/* Main Content Area - No sidebar */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar */}
-        <Sidebar activeTab={activeTab} onTabChange={onTabChange} />
-
         {/* Content */}
         <main
-          className="flex-1 overflow-y-auto p-6"
+          className="flex-1 overflow-y-auto"
           role="main"
           aria-label="Main content"
         >
-          <div className="max-w-7xl mx-auto">
-            {children}
-          </div>
+          {children}
         </main>
       </div>
 

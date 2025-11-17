@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { GameProvider, useGame } from '@/context';
 import { ToastProvider } from '@/context/ToastContext';
 import { actions } from '@/context/actions';
@@ -14,6 +14,8 @@ import {
   Statistics,
   PrestigePanel,
   Settings,
+  ZoneProgressBar,
+  DebugPanel,
 } from '@/components/game';
 import { BackgroundParticles } from '@/components/effects';
 import { Modal } from '@/components/ui/Modal';
@@ -28,6 +30,8 @@ import {
   AUTO_CLICK_UPGRADES,
   PRESTIGE_UPGRADES,
   GAME_CONFIG,
+  getFuelRequiredForZone,
+  canWarpToNextZone,
 } from '@/constants';
 import {
   calculateBuildingCost,
@@ -49,14 +53,32 @@ function GameContent() {
     timeAwayDisplay: '',
     wasCapped: false,
   });
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const hasLoadedRef = useRef(false);
 
   // Start game loop
   useGameLoop();
 
   // Load saved game on mount and handle offline progress
   useEffect(() => {
+    // Prevent double-loading in React StrictMode
+    if (hasLoadedRef.current) {
+      console.log('⏭️ Skipping duplicate load (StrictMode)');
+      return;
+    }
+    hasLoadedRef.current = true;
+
     const savedState = loadGame();
+    console.log('📁 Loading game from localStorage:', savedState ? 'Found save data' : 'No save found');
+
     if (savedState) {
+      // Load the saved state FIRST
+      dispatch(actions.loadSave(savedState));
+      console.log('✅ Game state loaded:', {
+        fuel: savedState.fuel,
+        buildings: savedState.buildings
+      });
+
       const now = Date.now();
       const lastSave = savedState.lastSaveTime || now;
 
@@ -73,7 +95,7 @@ function GameContent() {
           setOfflineProgress(offlineInfo);
           setShowOfflineModal(true);
 
-          // Apply offline progress
+          // Apply offline progress AFTER loading
           dispatch(
             actions.applyOfflineProgress(
               offlineInfo.stardustEarned,
@@ -83,11 +105,12 @@ function GameContent() {
         }
       }
 
-      // Load the saved state
-      dispatch(actions.loadSave(savedState));
-
-      toast.success('Game loaded successfully!');
+      toast.success('Game loaded!');
+    } else {
+      console.log('🆕 Starting new game');
     }
+
+    setHasLoaded(true);
   }, [dispatch, toast]);
 
   // Auto-save every 30 seconds
@@ -103,6 +126,58 @@ function GameContent() {
 
     return () => clearInterval(interval);
   }, [state, toast]);
+
+  // Save on meaningful state changes (not every tick)
+  // Track only the values that matter for saving
+  useEffect(() => {
+    // Skip until game is loaded
+    if (!hasLoaded) {
+      return;
+    }
+
+    console.log('🎯 Important state changed! Scheduling save...');
+
+    // Longer debounce to survive multiple rapid changes
+    const timeoutId = setTimeout(() => {
+      try {
+        console.log('💾 Saving game now...', {
+          fuel: Math.floor(state.fuel),
+          buildings: state.buildings,
+          totalStardust: Math.floor(state.totalStardustEarned)
+        });
+
+        saveGame(state);
+
+        console.log('✅ Game saved to localStorage');
+
+        // Verify it was saved
+        const saved = localStorage.getItem('cosmicClicker_save');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          console.log('✅ Verified in localStorage:', {
+            buildings: parsed.gameState.buildings,
+            fuel: Math.floor(parsed.gameState.fuel)
+          });
+        } else {
+          console.error('❌ Nothing in localStorage after save!');
+        }
+      } catch (error) {
+        console.error('❌ Failed to save game:', error);
+      }
+    }, 2000); // 2 second debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [
+    // Only track meaningful changes, not continuous production
+    state.buildings,
+    state.upgrades,
+    state.achievements,
+    state.nebulaCrystals,
+    state.statistics.totalClicks,
+    state.statistics.buildingsPurchased,
+    state.statistics.upgradesPurchased,
+    hasLoaded
+  ]);
 
   // Check achievements periodically
   useEffect(() => {
@@ -220,7 +295,7 @@ function GameContent() {
             buildings={BUILDINGS}
             ownedCounts={state.buildings}
             currentCosts={buildingCosts}
-            stardust={state.stardust}
+            stardust={state.fuel}
             onPurchase={(buildingId) => dispatch(actions.buyBuilding(buildingId, 1))}
             productionByBuilding={buildingProduction}
           />
@@ -233,7 +308,7 @@ function GameContent() {
             autoClickUpgrades={AUTO_CLICK_UPGRADES}
             prestigeUpgrades={PRESTIGE_UPGRADES}
             purchasedUpgrades={new Set(state.upgrades)}
-            stardust={state.stardust}
+            stardust={state.fuel}
             onPurchase={(upgradeId) => dispatch(actions.buyUpgrade(upgradeId))}
           />
         );
@@ -266,7 +341,7 @@ function GameContent() {
             buildings={BUILDINGS}
             ownedCounts={state.buildings}
             currentCosts={buildingCosts}
-            stardust={state.stardust}
+            stardust={state.fuel}
             onPurchase={(buildingId) => dispatch(actions.buyBuilding(buildingId, 1))}
             productionByBuilding={buildingProduction}
           />
@@ -282,7 +357,7 @@ function GameContent() {
       {/* Main layout */}
       <MainLayout
         headerProps={{
-          stardust: state.stardust,
+          fuel: state.fuel,
           productionPerSecond: state.productionPerSecond,
           nebulaCrystals: state.nebulaCrystals,
           clickPower: state.clickPower,
@@ -290,16 +365,87 @@ function GameContent() {
         activeTab={activeTab}
         onTabChange={setActiveTab}
       >
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Clicker section */}
-          <div className="flex items-center justify-center">
-            <Clicker onClick={handleClick} clickPower={state.clickPower} />
+        {/* Main layout with fixed right sidebar */}
+        <div className="flex flex-col lg:flex-row h-full relative">
+          {/* Main content area */}
+          <div className="flex-1 flex flex-col relative min-h-[calc(100vh-200px)]">
+            {/* Game view area - spaceship will be at bottom */}
+            <div className="flex-1 relative">
+              {/* This is where zone backgrounds, asteroids, etc will go */}
+            </div>
+
+            {/* Spaceship at bottom center */}
+            <div className="flex items-end justify-center pb-8">
+              <Clicker
+                onClick={handleClick}
+                clickPower={state.clickPower}
+                spaceMinerCount={state.buildings['spaceMiner'] || 0}
+              />
+            </div>
           </div>
 
-          {/* Content panel */}
-          <div className="flex flex-col">{renderContent()}</div>
+          {/* Zone Progress Bar - Fixed right sidebar */}
+          <div className="lg:w-80 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto p-4 bg-gray-950">
+            <ZoneProgressBar
+              currentZone={state.currentZone}
+              currentFuel={state.zoneProgress}
+              fuelRequired={getFuelRequiredForZone(state.currentZone)}
+              onWarpToNextZone={() => dispatch(actions.warpToNextZone())}
+            />
+          </div>
+        </div>
+
+        {/* Bottom tabs for content */}
+        <div className="fixed bottom-0 left-0 right-0 lg:right-80 bg-gray-900 border-t border-gray-700 z-40">
+          <div className="flex justify-around items-center p-2">
+            <button
+              onClick={() => setActiveTab(activeTab === 'buildings' ? 'buildings' : 'buildings')}
+              className="flex-1 px-4 py-3 text-sm font-semibold text-white hover:bg-gray-800 rounded transition-colors"
+            >
+              📦 Modules
+            </button>
+            <button
+              onClick={() => setActiveTab(activeTab === 'upgrades' ? 'buildings' : 'upgrades')}
+              className="flex-1 px-4 py-3 text-sm font-semibold text-white hover:bg-gray-800 rounded transition-colors"
+            >
+              ⚡ Upgrades
+            </button>
+            <button
+              onClick={() => setActiveTab(activeTab === 'achievements' ? 'buildings' : 'achievements')}
+              className="flex-1 px-4 py-3 text-sm font-semibold text-white hover:bg-gray-800 rounded transition-colors"
+            >
+              🏆 Achievements
+            </button>
+            <button
+              onClick={() => setActiveTab(activeTab === 'statistics' ? 'buildings' : 'statistics')}
+              className="flex-1 px-4 py-3 text-sm font-semibold text-white hover:bg-gray-800 rounded transition-colors"
+            >
+              📊 Stats
+            </button>
+          </div>
+
+          {/* Content panel - slides up when tab active */}
+          {activeTab !== 'buildings' && (
+            <div className="max-h-96 overflow-y-auto bg-gray-800 p-4 border-t border-gray-700">
+              {renderContent()}
+            </div>
+          )}
         </div>
       </MainLayout>
+
+      {/* Debug Panel */}
+      <DebugPanel
+        onAddFuel={(amount) => dispatch(actions.addFuel(amount))}
+        onSetZone={(zone) => dispatch(actions.setZone(zone))}
+        onAddBuilding={(buildingId, quantity) => {
+          for (let i = 0; i < quantity; i++) {
+            dispatch(actions.buyBuilding(buildingId, 1));
+          }
+        }}
+        onResetGame={() => dispatch(actions.hardReset())}
+        currentFuel={state.fuel}
+        currentZone={state.currentZone}
+      />
 
       {/* Offline progress modal */}
       <Modal

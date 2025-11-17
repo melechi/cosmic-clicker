@@ -22,7 +22,7 @@ function MainLayoutWrapper() {
   return (
     <MainLayout
       headerProps={{
-        stardust: 12345.67,
+        fuel: 12345.67,
         productionPerSecond: 250,
         nebulaCrystals: 10,
         clickPower: 5,
@@ -59,7 +59,7 @@ export const EarlyGame: Story = {
     return (
       <MainLayout
         headerProps={{
-          stardust: 45,
+          fuel: 45,
           productionPerSecond: 0.5,
           nebulaCrystals: 0,
           clickPower: 1,
@@ -81,7 +81,7 @@ export const LateGame: Story = {
     return (
       <MainLayout
         headerProps={{
-          stardust: 999999999999,
+          fuel: 999999999999,
           productionPerSecond: 50000000,
           nebulaCrystals: 100,
           clickPower: 100000,
@@ -110,7 +110,7 @@ export const WithoutFooter: Story = {
     return (
       <MainLayout
         headerProps={{
-          stardust: 5000,
+          fuel: 5000,
           productionPerSecond: 50,
           nebulaCrystals: 2,
           clickPower: 3,

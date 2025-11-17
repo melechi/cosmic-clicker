@@ -384,7 +384,7 @@ describe('calculateAutoClickProduction', () => {
 describe('getPrestigeStartingResources', () => {
   it('should return empty resources with no upgrades', () => {
     const result = getPrestigeStartingResources([]);
-    expect(result.stardust).toBe(0);
+    expect(result.fuel).toBe(0);
     expect(result.buildings).toEqual({});
   });
 
@@ -402,7 +402,7 @@ describe('getPrestigeStartingResources', () => {
     ];
 
     const result = getPrestigeStartingResources(upgrades);
-    expect(result.stardust).toBe(100);
+    expect(result.fuel).toBe(100);
   });
 
   it('should handle startBuildings upgrade', () => {
@@ -445,7 +445,7 @@ describe('getPrestigeStartingResources', () => {
     ];
 
     const result = getPrestigeStartingResources(upgrades);
-    expect(result.stardust).toBe(100);
+    expect(result.fuel).toBe(100);
     expect(result.buildings.spaceMiner).toBe(5);
   });
 });

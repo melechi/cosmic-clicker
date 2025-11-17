@@ -32,8 +32,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'CLICK': {
       return {
         ...state,
-        stardust: state.stardust + state.clickPower,
-        totalStardustEarned: state.totalStardustEarned + state.clickPower,
+        fuel: state.fuel + state.clickPower,
+        totalFuelEarned: state.totalFuelEarned + state.clickPower,
+        zoneProgress: state.zoneProgress + state.clickPower,
         statistics: {
           ...state.statistics,
           totalClicks: state.statistics.totalClicks + 1,
@@ -58,7 +59,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
               quantity
             );
 
-      if (!canAfford(state.stardust, cost)) return state;
+      if (!canAfford(state.fuel, cost)) return state;
 
       // Update production after purchase
       const newBuildingCounts = {
@@ -108,7 +109,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       return {
         ...state,
-        stardust: state.stardust - cost,
+        fuel: state.fuel - cost,
         buildings: newBuildingCounts,
         productionPerSecond: buildingProduction + autoClickProduction,
         statistics: {
@@ -124,7 +125,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       if (!upgrade) return state;
       if (state.upgrades.includes(upgradeId)) return state; // Already purchased
-      if (!canAfford(state.stardust, upgrade.cost)) return state;
+      if (!canAfford(state.fuel, upgrade.cost)) return state;
 
       const newUpgrades = [...state.upgrades, upgradeId];
 
@@ -171,7 +172,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       return {
         ...state,
-        stardust: state.stardust - upgrade.cost,
+        fuel: state.fuel - upgrade.cost,
         upgrades: newUpgrades,
         clickPower,
         productionPerSecond: buildingProduction + autoClickProduction,
@@ -191,7 +192,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       const buildingCount = state.buildings[upgrade.buildingId] || 0;
       if (buildingCount < upgrade.requiredCount) return state;
-      if (!canAfford(state.stardust, upgrade.cost)) return state;
+      if (!canAfford(state.fuel, upgrade.cost)) return state;
 
       const newUpgrades = [...state.upgrades, upgradeId];
 
@@ -237,7 +238,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       return {
         ...state,
-        stardust: state.stardust - upgrade.cost,
+        fuel: state.fuel - upgrade.cost,
         upgrades: newUpgrades,
         productionPerSecond: buildingProduction + autoClickProduction,
         statistics: {
@@ -282,7 +283,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         (u) => state.upgrades.includes(u.id) && u.effect === 'prestigeBonus'
       ).reduce((acc, u) => acc + u.value, 0);
 
-      const newCrystals = calculatePrestigeReward(state.totalStardustEarned, prestigeBonus);
+      const newCrystals = calculatePrestigeReward(state.totalFuelEarned, prestigeBonus);
 
       if (newCrystals === 0) return state;
 
@@ -295,7 +296,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const purchasedPrestigeUpgrades = PRESTIGE_UPGRADES.filter((u) =>
         prestigeUpgrades.includes(u.id)
       );
-      const { stardust: startStardust, buildings: startBuildings } =
+      const { fuel: startStardust, buildings: startBuildings } =
         getPrestigeStartingResources(purchasedPrestigeUpgrades);
 
       // Check if auto-clicker should be unlocked at start
@@ -310,8 +311,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         nebulaCrystals: state.nebulaCrystals + newCrystals,
         upgrades: [...prestigeUpgrades, ...autoClickUpgrades],
         achievements: state.achievements, // Keep achievements
-        stardust: startStardust,
-        totalStardustEarned: startStardust,
+        fuel: startStardust,
+        totalFuelEarned: startStardust,
         buildings: startBuildings,
         statistics: {
           ...initialGameState.statistics,
@@ -323,11 +324,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case 'TICK': {
       const { deltaTime } = action.payload;
+      const fuelEarned = state.productionPerSecond * deltaTime;
 
       return {
         ...state,
-        stardust: state.stardust + state.productionPerSecond * deltaTime,
-        totalStardustEarned: state.totalStardustEarned + state.productionPerSecond * deltaTime,
+        fuel: state.fuel + fuelEarned,
+        totalFuelEarned: state.totalFuelEarned + fuelEarned,
+        zoneProgress: state.zoneProgress + fuelEarned,
         statistics: {
           ...state.statistics,
           currentSessionTime: state.statistics.currentSessionTime + deltaTime,
@@ -344,12 +347,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case 'APPLY_OFFLINE_PROGRESS': {
-      const { stardust, timeAway } = action.payload;
+      const { fuel, timeAway } = action.payload;
 
       return {
         ...state,
-        stardust: state.stardust + stardust,
-        totalStardustEarned: state.totalStardustEarned + stardust,
+        fuel: state.fuel + fuel,
+        totalFuelEarned: state.totalFuelEarned + fuel,
         statistics: {
           ...state.statistics,
           totalPlayTime: state.statistics.totalPlayTime + timeAway,
@@ -361,6 +364,36 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...initialGameState,
         lastSaveTime: Date.now(),
+      };
+    }
+
+    case 'WARP_TO_NEXT_ZONE': {
+      // Move to next zone and reset zone progress
+      return {
+        ...state,
+        currentZone: state.currentZone + 1,
+        zoneProgress: 0,
+      };
+    }
+
+    case 'SET_ZONE': {
+      // Debug action to set zone directly
+      const { zone } = action.payload;
+      return {
+        ...state,
+        currentZone: zone,
+        zoneProgress: 0,
+      };
+    }
+
+    case 'ADD_FUEL': {
+      // Debug action to add fuel
+      const { amount } = action.payload;
+      return {
+        ...state,
+        fuel: state.fuel + amount,
+        totalFuelEarned: state.totalFuelEarned + amount,
+        zoneProgress: state.zoneProgress + amount,
       };
     }
 

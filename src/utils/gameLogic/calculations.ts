@@ -128,7 +128,7 @@ export function calculateClickPower(
 
 /**
  * Calculate Nebula Crystals earned from prestige
- * @param totalStardustEarned - Total stardust earned in current run
+ * @param totalStardustEarned - Total fuel earned in current run
  * @param prestigeBonus - Bonus from prestige upgrades (e.g., 0.1 for 10% bonus)
  * @returns Number of Nebula Crystals that would be earned
  */
@@ -177,7 +177,7 @@ export function calculateProductionMultiplier(
 
 /**
  * Check if player can afford a cost
- * @param currentStardust - Current stardust amount
+ * @param currentStardust - Current fuel amount
  * @param cost - Cost of the item
  * @returns True if player can afford
  */
@@ -187,7 +187,7 @@ export function canAfford(currentStardust: number, cost: number): boolean {
 
 /**
  * Check if player can prestige
- * @param totalStardustEarned - Total stardust earned in current run
+ * @param totalStardustEarned - Total fuel earned in current run
  * @returns True if player can prestige
  */
 export function canPrestige(totalStardustEarned: number): boolean {
@@ -196,7 +196,7 @@ export function canPrestige(totalStardustEarned: number): boolean {
 
 /**
  * Calculate the maximum number of buildings that can be purchased
- * @param currentStardust - Available stardust
+ * @param currentStardust - Available fuel
  * @param baseCost - Base cost of the building
  * @param multiplier - Cost multiplier
  * @param currentCount - Current number owned
@@ -230,7 +230,7 @@ export function calculateMaxAffordable(
  * Calculate auto-click production (clicks per second)
  * @param autoClickUpgrades - Array of purchased auto-click upgrades with their clicks per second
  * @param clickPower - Current click power
- * @returns Total stardust per second from auto-clicking
+ * @returns Total fuel per second from auto-clicking
  */
 export function calculateAutoClickProduction(
   autoClickUpgrades: number[],
@@ -243,25 +243,25 @@ export function calculateAutoClickProduction(
 /**
  * Apply prestige upgrades to get starting resources
  * @param prestigeUpgrades - Array of purchased prestige upgrades
- * @returns Object with starting stardust and buildings
+ * @returns Object with starting fuel and buildings
  */
 export function getPrestigeStartingResources(prestigeUpgrades: PrestigeUpgrade[]): {
-  stardust: number;
+  fuel: number;
   buildings: Record<string, number>;
 } {
-  let stardust = 0;
+  let fuel = 0;
   const buildings: Record<string, number> = {};
 
   for (const upgrade of prestigeUpgrades) {
     if (upgrade.effect === 'startStardust') {
-      stardust += upgrade.value;
+      fuel += upgrade.value;
     } else if (upgrade.effect === 'startBuildings') {
       // Assuming first building (Space Miner) for Mining Experience upgrade
       buildings.spaceMiner = (buildings.spaceMiner || 0) + upgrade.value;
     }
   }
 
-  return { stardust, buildings };
+  return { fuel, buildings };
 }
 
 /**

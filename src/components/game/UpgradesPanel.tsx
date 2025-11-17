@@ -9,7 +9,7 @@ export interface UpgradesPanelProps {
   autoClickUpgrades: AnyUpgrade[];
   prestigeUpgrades: AnyUpgrade[];
   purchasedUpgrades: Set<string>;
-  stardust: number;
+  fuel: number;
   onPurchase: (upgradeId: string) => void;
 }
 
@@ -24,7 +24,7 @@ export const UpgradesPanel: React.FC<UpgradesPanelProps> = ({
   autoClickUpgrades,
   prestigeUpgrades,
   purchasedUpgrades,
-  stardust,
+  fuel,
   onPurchase,
 }) => {
   const [activeTab, setActiveTab] = useState<UpgradeTab>('all');
@@ -110,7 +110,7 @@ export const UpgradesPanel: React.FC<UpgradesPanelProps> = ({
                   key={upgrade.id}
                   upgrade={upgrade}
                   isPurchased={false}
-                  canAfford={stardust >= upgrade.cost}
+                  canAfford={fuel >= upgrade.cost}
                   onPurchase={onPurchase}
                 />
               ))}

@@ -15,7 +15,7 @@ type Story = StoryObj<typeof Header>;
 
 export const Default: Story = {
   args: {
-    stardust: 1234.56,
+    fuel: 1234.56,
     productionPerSecond: 10.5,
     nebulaCrystals: 0,
     clickPower: 1,
@@ -24,7 +24,7 @@ export const Default: Story = {
 
 export const WithNebulaCrystals: Story = {
   args: {
-    stardust: 5000000,
+    fuel: 5000000,
     productionPerSecond: 2500,
     nebulaCrystals: 15,
     clickPower: 10,
@@ -33,7 +33,7 @@ export const WithNebulaCrystals: Story = {
 
 export const LargeNumbers: Story = {
   args: {
-    stardust: 9876543210,
+    fuel: 9876543210,
     productionPerSecond: 1234567,
     nebulaCrystals: 999,
     clickPower: 5000,
@@ -42,7 +42,7 @@ export const LargeNumbers: Story = {
 
 export const EarlyGame: Story = {
   args: {
-    stardust: 45,
+    fuel: 45,
     productionPerSecond: 0.5,
     nebulaCrystals: 0,
     clickPower: 1,
@@ -51,7 +51,7 @@ export const EarlyGame: Story = {
 
 export const MidGame: Story = {
   args: {
-    stardust: 150000,
+    fuel: 150000,
     productionPerSecond: 500,
     nebulaCrystals: 3,
     clickPower: 25,
@@ -60,7 +60,7 @@ export const MidGame: Story = {
 
 export const LateGame: Story = {
   args: {
-    stardust: 999999999999,
+    fuel: 999999999999,
     productionPerSecond: 50000000,
     nebulaCrystals: 100,
     clickPower: 100000,

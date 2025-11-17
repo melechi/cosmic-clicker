@@ -6,8 +6,8 @@ import type { Building, BuildingUpgrade } from '@/types';
 export const BUILDINGS: Building[] = [
   {
     id: 'spaceMiner',
-    name: 'Space Miner',
-    description: 'Small drones that collect stardust automatically',
+    name: 'Mining Drone',
+    description: 'Small autonomous drones that collect fuel from nearby sources',
     baseCost: 10,
     costMultiplier: 1.15,
     production: 0.1,
@@ -16,7 +16,7 @@ export const BUILDINGS: Building[] = [
   {
     id: 'asteroidHarvester',
     name: 'Asteroid Harvester',
-    description: 'Automated facilities that mine asteroids',
+    description: 'Automated mining rigs that extract fuel from asteroids',
     baseCost: 100,
     costMultiplier: 1.15,
     production: 1,
@@ -24,8 +24,8 @@ export const BUILDINGS: Building[] = [
   },
   {
     id: 'lunarRefinery',
-    name: 'Lunar Refinery',
-    description: 'Advanced refineries on lunar surfaces',
+    name: 'Fuel Refinery',
+    description: 'Advanced refineries that process raw materials into fuel',
     baseCost: 1100,
     costMultiplier: 1.15,
     production: 8,
@@ -34,7 +34,7 @@ export const BUILDINGS: Building[] = [
   {
     id: 'solarCollector',
     name: 'Solar Collector',
-    description: 'Massive arrays that harness solar energy',
+    description: 'Massive arrays that convert solar energy into fuel',
     baseCost: 12000,
     costMultiplier: 1.15,
     production: 47,
@@ -42,8 +42,8 @@ export const BUILDINGS: Building[] = [
   },
   {
     id: 'wormholeGenerator',
-    name: 'Wormhole Generator',
-    description: 'Exotic technology that generates stardust from quantum fluctuations',
+    name: 'Quantum Extractor',
+    description: 'Exotic technology that extracts fuel from quantum fluctuations',
     baseCost: 130000,
     costMultiplier: 1.15,
     production: 260,
@@ -51,8 +51,8 @@ export const BUILDINGS: Building[] = [
   },
   {
     id: 'galacticNexus',
-    name: 'Galactic Nexus',
-    description: 'A vast network connecting stellar production facilities',
+    name: 'Fuel Synthesizer',
+    description: 'A vast network that synthesizes fuel from cosmic matter',
     baseCost: 1400000,
     costMultiplier: 1.15,
     production: 1400,
@@ -60,8 +60,8 @@ export const BUILDINGS: Building[] = [
   },
   {
     id: 'universeEngine',
-    name: 'Universe Engine',
-    description: 'Reality-bending machinery that creates stardust from the fabric of spacetime',
+    name: 'Reality Engine',
+    description: 'Reality-bending machinery that creates fuel from the fabric of spacetime',
     baseCost: 20000000,
     costMultiplier: 1.15,
     production: 7800,

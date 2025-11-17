@@ -1,11 +1,14 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { ClickParticle } from './ClickParticle';
+import { Spaceship } from '../effects/Spaceship';
+import { MiningBot } from '../effects/MiningBot';
 import { usePulse } from '@/hooks/useAnimation';
 
 export interface ClickerProps {
   clickPower: number;
   onClick: () => void;
   disabled?: boolean;
+  spaceMinerCount?: number; // Number of Space Miner buildings owned
 }
 
 interface Particle {
@@ -16,14 +19,37 @@ interface Particle {
 }
 
 /**
- * Main clickable element for generating stardust
+ * Main clickable element for collecting fuel
  */
-export const Clicker: React.FC<ClickerProps> = ({ clickPower, onClick, disabled = false }) => {
+export const Clicker: React.FC<ClickerProps> = ({
+  clickPower,
+  onClick,
+  disabled = false,
+  spaceMinerCount = 0,
+}) => {
   const [particles, setParticles] = useState<Particle[]>([]);
   const [nextParticleId, setNextParticleId] = useState(0);
   const [clickCount, setClickCount] = useState(0);
 
   const scale = usePulse(clickCount, { duration: 200, scale: 1.1 });
+
+  // Calculate number of visual mining bots (1 per 10 miners)
+  const visualBotCount = useMemo(() => {
+    return Math.floor(spaceMinerCount / 10);
+  }, [spaceMinerCount]);
+
+  // Generate bot positions in orbit around the star
+  const botPositions = useMemo(() => {
+    const positions = [];
+    const radius = 180; // Distance from center
+
+    for (let i = 0; i < visualBotCount; i++) {
+      const angle = (360 / visualBotCount) * i;
+      positions.push({ angle, distance: radius, index: i });
+    }
+
+    return positions;
+  }, [visualBotCount]);
 
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -57,30 +83,45 @@ export const Clicker: React.FC<ClickerProps> = ({ clickPower, onClick, disabled 
   }, []);
 
   return (
-    <div className="relative flex items-center justify-center p-8">
+    <div className="relative flex items-center justify-center p-8 min-h-[500px]">
+      {/* SVG container for mining bots - positioned behind button */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+        <svg
+          style={{
+            width: '500px',
+            height: '500px',
+            overflow: 'visible',
+          }}
+          viewBox="-250 -250 500 500"
+        >
+          {/* Render mining bots */}
+          {botPositions.map((pos) => (
+            <MiningBot
+              key={pos.index}
+              angle={pos.angle}
+              distance={pos.distance}
+              index={pos.index}
+            />
+          ))}
+        </svg>
+      </div>
+
       <button
         onClick={handleClick}
         disabled={disabled}
         className={`
-          relative w-64 h-64 rounded-full bg-gradient-to-br from-blue-500 to-purple-600
-          shadow-2xl hover:shadow-blue-500/50 transition-all duration-200
-          focus:outline-none focus:ring-4 focus:ring-blue-400
-          active:scale-95
-          ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:from-blue-400 hover:to-purple-500'}
+          relative w-64 h-64 transition-all duration-200
+          focus:outline-none active:scale-95 z-10
+          ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
         `}
-        style={{ transform: `scale(${scale})` }}
-        aria-label={`Click to generate ${clickPower} stardust`}
+        style={{ transform: `scale(${scale})`, background: 'transparent' }}
+        aria-label={`Click to generate ${clickPower} fuel`}
         aria-disabled={disabled}
       >
-        {/* Cosmic Icon */}
+        {/* Spaceship - rotated to face upward */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-8xl select-none" role="img" aria-hidden="true">
-            ✨
-          </span>
+          <Spaceship size={180} />
         </div>
-
-        {/* Glow Effect */}
-        <div className="absolute inset-0 rounded-full bg-blue-400/20 blur-xl animate-pulse" />
       </button>
 
       {/* Click Particles */}
@@ -95,8 +136,8 @@ export const Clicker: React.FC<ClickerProps> = ({ clickPower, onClick, disabled 
       ))}
 
       {/* Instruction Text */}
-      <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-center">
-        <p className="text-gray-400 text-sm">Click to collect stardust!</p>
+      <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-center z-10">
+        <p className="text-gray-400 text-sm">Click to collect fuel!</p>
       </div>
     </div>
   );

@@ -57,13 +57,13 @@ export const BuildingItem: React.FC<BuildingItemProps> = ({
 
       {/* Purchase Button */}
       <div className="flex flex-col items-end gap-2">
-        <Tooltip content={canAfford ? 'Click to purchase' : 'Not enough stardust'}>
+        <Tooltip content={canAfford ? 'Click to purchase' : 'Not enough fuel'}>
           <Button
             variant={canAfford ? 'primary' : 'secondary'}
             size="medium"
             onClick={handlePurchase}
             disabled={!canAfford}
-            aria-label={`Purchase ${building.name} for ${formatNumber(currentCost)} stardust`}
+            aria-label={`Purchase ${building.name} for {formatNumber(currentCost)} fuel`}
           >
             <div className="flex flex-col items-center min-w-24">
               <span className="text-xs text-gray-300">Buy</span>

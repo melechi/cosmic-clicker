@@ -106,7 +106,7 @@ describe('Header', () => {
       />
     );
 
-    expect(screen.getByLabelText(/stardust:/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/fuel:/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/production rate:/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/click power:/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/nebula crystals:/i)).toBeInTheDocument();

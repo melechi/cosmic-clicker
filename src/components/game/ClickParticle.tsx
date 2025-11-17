@@ -9,7 +9,7 @@ export interface ClickParticleProps {
 }
 
 /**
- * Animated particle that shows stardust gained from clicking
+ * Animated particle that shows fuel gained from clicking
  */
 export const ClickParticle: React.FC<ClickParticleProps> = ({ x, y, value, onComplete }) => {
   const [isVisible, setIsVisible] = useState(true);

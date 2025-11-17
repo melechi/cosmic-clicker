@@ -13,3 +13,4 @@ export {
 } from './upgrades';
 export { ACHIEVEMENTS, getAchievementById, getAchievementsByCategory } from './achievements';
 export { GAME_CONFIG, UI_CONFIG } from './gameConfig';
+export { ZONES, getZoneConfig, getFuelRequiredForZone, canWarpToNextZone } from './zones';

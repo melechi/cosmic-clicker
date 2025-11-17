@@ -5,7 +5,7 @@ import { GAME_CONFIG } from '@/constants';
  * @param lastSaveTime - Timestamp of last save (milliseconds)
  * @param currentTime - Current timestamp (milliseconds)
  * @param productionPerSecond - Current production rate per second
- * @returns Amount of stardust earned offline
+ * @returns Amount of fuel earned offline
  */
 export function calculateOfflineProgress(
   lastSaveTime: number,
@@ -39,7 +39,7 @@ export function getOfflineProgressInfo(
   currentTime: number,
   productionPerSecond: number
 ): {
-  stardustEarned: number;
+  fuelEarned: number;
   timeAway: number;
   timeAwayDisplay: string;
   wasCapped: boolean;
@@ -50,13 +50,13 @@ export function getOfflineProgressInfo(
   const maxOfflineSeconds = GAME_CONFIG.MAX_OFFLINE_HOURS * 3600;
   const wasCapped = elapsedSeconds > maxOfflineSeconds;
 
-  const stardustEarned = calculateOfflineProgress(lastSaveTime, currentTime, productionPerSecond);
+  const fuelEarned = calculateOfflineProgress(lastSaveTime, currentTime, productionPerSecond);
 
   // Format time away for display
   const timeAwayDisplay = formatOfflineTime(elapsedSeconds);
 
   return {
-    stardustEarned,
+    fuelEarned,
     timeAway: elapsedSeconds,
     timeAwayDisplay,
     wasCapped,
